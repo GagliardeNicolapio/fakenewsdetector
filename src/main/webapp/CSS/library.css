@@ -1,0 +1,47 @@
+body{
+    background: url("../images/artificial-intelligence.jpg") no-repeat center center fixed;
+    background-size: cover;
+}
+
+.grid-x{
+    display: flex;
+    flex-flow: row wrap;
+}
+
+.grid-y{
+    display: flex;
+    flex-flow: column wrap;
+}
+
+.grid-inline{
+    display: inline-flex;
+}
+
+.justify-center{
+    justify-content: center;
+}
+
+.justify-between{
+    justify-content: space-between;
+}
+
+.justify-space-around{
+    justify-content: space-around;
+}
+
+.justify-evenly{
+    justify-content: space-evenly;
+}
+
+.justify-start{
+    justify-content: flex-start;
+}
+
+.justify-end{
+    justify-content: flex-end;
+}
+
+.align-center{
+    align-items: center;
+}
+

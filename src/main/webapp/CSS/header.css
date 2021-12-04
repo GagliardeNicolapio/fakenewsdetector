@@ -1,0 +1,23 @@
+#aboutLink{
+    text-decoration: none;
+    color: white;
+    font-size: 20px;
+}
+
+#aboutLink:hover{
+    text-decoration: underline;
+}
+
+#logoHeader{
+    width: 70%;
+}
+
+@media screen and (max-width: 700px){
+    #header{
+        flex-flow: column wrap;
+    }
+    #logoHeader{
+        flex-flow: column wrap;
+        width: 100%;
+    }
+}

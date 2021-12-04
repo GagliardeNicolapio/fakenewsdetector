@@ -1,0 +1,11 @@
+#aboutBody{
+    background-color: white;
+    height: 100vh;
+    margin-left: 13vw;
+    margin-right: 13vw;
+    padding: 20px;
+}
+
+#aboutList > li{
+    margin-bottom: 20px;
+}
