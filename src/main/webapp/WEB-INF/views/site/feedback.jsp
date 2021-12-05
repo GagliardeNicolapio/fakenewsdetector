@@ -1,5 +1,5 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<%@ taglib uri = "http://java.sun.com/jsp/jstl/core" prefix = "c" %>
+<%@ taglib prefix = "c" uri = "http://java.sun.com/jsp/jstl/core" %>
 <html>
 <head>
     <script src="${initParam['jqueryPath']}" defer></script>
@@ -61,7 +61,9 @@
         <div class="card">
             <div class="card-body">
                 <h5 class="card-title">Info</h5>
-                <p class="card-text">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam sagittis odio justo, eu fermentum lectus molestie vel. Nam commodo porttitor erat, id rutrum nibh commodo eget. Sed varius libero metus, eget suscipit enim posuere at. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Nulla sodales, diam a p</p>
+                <p class="card-text">
+${textNews}
+                </p>
             </div>
         </div>
     </div>
