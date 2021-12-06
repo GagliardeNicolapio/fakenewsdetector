@@ -35,7 +35,7 @@ public class FeedbackServlet extends Controller {
                 link = "http://" + link;                 //se si riceve un redirect a https jsoup lo fa in automatico
 
             /*lista di tag da eliminare dal DOM*/
-            ArrayList<String> listaTagDaEliminare = new ArrayList<>(Arrays.asList("img","iframe","footer","nav","figure","button","form","input"));
+            ArrayList<String> listaTagDaEliminare = new ArrayList<>(Arrays.asList("img","iframe","footer","nav","figure","button","form","input","script","noscript","header"));
             /*lista di tag inline (al momento non in uso)*/
             //ArrayList<String> listaTagInline = new ArrayList<>(Arrays.asList("b","big","i","small","tt","abbr","acronym","cite","code","dfn","em","kbd","strong","samp","var","a","bdo","br","img","map","object","q","script","span","sub","sup","button","input","label","select","textarea"));
 
@@ -47,6 +47,18 @@ public class FeedbackServlet extends Controller {
                 for(int i=0; i<lista.size(); i++)
                     lista.get(i).remove(); //rimuovo dal DOM
             }
+
+            body.getElementsByAttribute("src").forEach(item->item.remove()); //rimuovo gli elementi che hanno l'attributo src
+
+            Elements lista = body.getAllElements();  //rimuovo gli elementi che non hanno testo
+            for(int i=0; i<lista.size(); i++)
+                if(lista.get(i).text().replace(" ","").equals(""))
+                    lista.get(i).remove();
+
+
+            body.getAllElements().forEach(item->item.removeAttr("class")); //rimuovo gli attributi class e id (per eliminare il css)
+            body.getAllElements().forEach(item->item.removeAttr("id"));
+
 
             request.setAttribute("textNews", body.html());
 
