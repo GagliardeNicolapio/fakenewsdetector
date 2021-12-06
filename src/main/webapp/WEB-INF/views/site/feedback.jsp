@@ -28,7 +28,13 @@
         }
     </c:otherwise>
 </c:choose>
-
+label{
+    border: 2px solid grey;
+    border-radius: 15px;
+    padding: 10px;
+    cursor: pointer;
+    margin-bottom: 7px;
+}
     </style>
 </head>
 
@@ -62,7 +68,11 @@
             <div class="card-body">
                 <h5 class="card-title">Info</h5>
                 <p class="card-text">
-${textNews}
+                    <form method="post" action="">
+                   ${textNews}
+                       <button type="submit" class="btn btn-primary">Analizza</button>
+                    </form>
+
                 </p>
             </div>
         </div>
