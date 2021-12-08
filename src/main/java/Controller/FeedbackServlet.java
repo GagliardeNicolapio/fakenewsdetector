@@ -7,6 +7,8 @@ import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.jsoup.nodes.Node;
+import org.jsoup.nodes.TextNode;
 import org.jsoup.select.Elements;
 
 import javax.servlet.*;
@@ -16,6 +18,7 @@ import java.io.IOException;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
@@ -35,11 +38,10 @@ public class FeedbackServlet extends Controller {
                 link = "http://" + link;                 //se si riceve un redirect a https jsoup lo fa in automatico
 
             /*lista di tag da eliminare dal DOM*/
-            ArrayList<String> listaTagDaEliminare = new ArrayList<>(Arrays.asList("img","iframe","footer","nav","figure","button","form","input","script","noscript","header","select"));
+            ArrayList<String> listaTagDaEliminare = new ArrayList<>(Arrays.asList("time","img","iframe","footer","nav","figure","button","form","input","script","noscript","header","select"));
             /*lista di tag inline */
             ArrayList<String> listaTagInline = new ArrayList<>(Arrays.asList("b","big","i","small","tt","abbr","acronym","cite","code","dfn","em","kbd","strong","samp","var","a","bdo","br","img","map","object","q","script","span","sub","sup","button","input","label","select","textarea"));
 
-            ArrayList<String> textNews = new ArrayList<>();
 
             //jsoup include page
             Document document = Jsoup.connect(link).get();
@@ -62,27 +64,38 @@ public class FeedbackServlet extends Controller {
             body.getAllElements().forEach(item->item.removeAttr("class")); //rimuovo gli attributi class e id (per eliminare il css)
             body.getAllElements().forEach(item->item.removeAttr("id"));
 
-            lista = body.getAllElements();
-            for(int i=0; i<lista.size(); i++){
-                if(!lista.get(i).text().replace(" ", "").equals(""))
-                    textNews.add(lista.get(i).text()+"<br><br>");
-            }
 
+            //applico le label ai div
             int contLabel=0;
-            Elements listaDIV = body.getElementsByTag("div");
+            Elements listaDIV = body.getElementsByTag("div"); //prendo tutti i div
             for(int i=0; i<listaDIV.size(); i++){
                 Element element = listaDIV.get(i);
-                if((!element.text().equals("")) && !checkChildrenBlockElem(element.children())){
+                if((!element.text().equals("")) && !checkChildrenBlockElem(element.children())){ //controllo se hanno testo e se non hanno elementi block come figli
                    Element label = document.createElement("label");
                    label.attr("for","check"+contLabel);
 
-                    element.replaceWith(label);
+                    element.replaceWith(label);//metto il div come figlio di label, cosi creo il blocco
                     label.appendChild(element);
                     label.prepend("<input class='form-check-input'  type='checkbox' id='"+("check"+contLabel)+"' name='"+("check"+contLabel)+"' value='"+ label.text() +"'>");
                     contLabel++;
                 }
             }
 
+            //elimino i div che contengono solo un link
+            for (Element element : body.getElementsByTag("div")){
+                 if(element.childNodes().size()==1 && element.childNodes().get(0).nodeName().equals("a")){ //ATTENZIONE FARE TEST CON NEWS CHE HANNO LINK NEL TESTO
+                     element.remove();
+                 }
+            }
+
+            //rimuovo i tag strong
+           for (Element element : body.getElementsByTag("strong")){
+                element.after(element.text() + " ");
+                element.remove();
+            }
+
+
+            //applico le label ai tag p
             Elements listaP = body.getElementsByTag("p");
             for(int i=0; i<listaP.size(); i++){
                 Element element = listaP.get(i);
@@ -96,6 +109,40 @@ public class FeedbackServlet extends Controller {
                     contLabel++;
 
                 }
+            }
+
+
+            //applico le label ai textNode, faccio il parse altrimenti jsoup mi vede le eliminazioni del tag strong come altri nodi
+             body =  Jsoup.parse(body.html());
+            listaDIV = body.getElementsByTag("div");
+
+            for (int i = 0; i < listaDIV.size(); i++) {
+                List<Node> elementsChild = listaDIV.get(i).childNodes();
+                for (int j = 0; j < elementsChild.size(); j++) {
+                    Node element = elementsChild.get(j);
+
+                    if (element instanceof TextNode) {
+                        Element label = document.createElement("label");
+                        label.attr("for", "check" + contLabel);
+
+                        element.replaceWith(label);
+                        label.appendChild(element);
+                        label.prepend("<input class='form-check-input' type='checkbox' id='" + ("check" + contLabel) + "' name='" + ("check" + contLabel) + "' value='" + label.text() + "'>");
+                        contLabel++;
+
+                    }
+                }
+            }
+
+
+
+
+            //rimuovo le label vuote
+            Elements listaLabel = body.getElementsByTag("label");
+            for(int i=0; i<listaLabel.size(); i++){
+                Element element = listaLabel.get(i);
+                if(element.text().replace(" ","").equals(""))
+                    element.remove();
             }
 
             request.setAttribute("textNews", body.html());
