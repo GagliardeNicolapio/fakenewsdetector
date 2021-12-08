@@ -8,6 +8,16 @@
     text-decoration: underline;
 }
 
+#adminLink{
+    text-decoration: none;
+    color: white;
+    font-size: 20px;
+}
+
+#adminLink:hover{
+    text-decoration: underline;
+}
+
 #logoHeader{
     width: 70%;
 }

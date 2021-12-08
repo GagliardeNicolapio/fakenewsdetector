@@ -18,6 +18,7 @@
                     </div>
                 </c:if>
             </div>
+            <a onclick="abortPreloader()" href="http://localhost:8080/FakeNewsDetector/login" id="adminLink">Admin</a>
             <a onclick="abortPreloader()" href="http://localhost:8080/FakeNewsDetector/aboutus" id="aboutLink">About us</a>
         </div>
     </div>
