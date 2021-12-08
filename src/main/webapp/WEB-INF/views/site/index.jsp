@@ -19,7 +19,7 @@
             </c:if>
         </div>
         <div class="input-group mb-3">
-            <form class="grid-inline" method="post" action="feedback" style="width: 100%">
+            <form class="grid-inline" method="post" action="scegliTitolo" style="width: 100%">
                 <input type="text" class="form-control" placeholder="News Link" name="link"
                        aria-label="Recipient's username" aria-describedby="button-addon2">
                 <button class="btn btn-secondary" type="submit" id="button-addon2"  onclick="startPreloader()" >Invia</button>
