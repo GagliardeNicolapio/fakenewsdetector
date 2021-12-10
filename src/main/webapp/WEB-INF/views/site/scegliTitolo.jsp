@@ -71,7 +71,7 @@
 </div>
 <script>
     var inputElements = document.getElementsByTagName("input");
-    for(var i=0; i<inputElements.length; i++){
+    for(var i=1; i<inputElements.length; i++){
         inputElements[i].setAttribute("type","radio");
     }
 </script>
