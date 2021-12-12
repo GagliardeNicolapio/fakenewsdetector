@@ -43,6 +43,43 @@
         <div class="card-body">
             <h5 class="card-title">Info</h5>
             <p>Seleziona il titolo della news cliccando su uno dei successivi blocchi</p>
+            <p style="display: inline;">Se non trovi il titolo o c'è qualche errore, incolla direttamente il titolo e il testo cliccando il tasto: </p>
+
+            <!-- Button trigger modal -->
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                Incolla il testo
+            </button>
+
+            <!-- Modal -->
+            <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="exampleModalLabel">Fake News Detector</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <form method="post" action="feedback">
+                                <input type="hidden" name="flagCopyPaste" value="1">
+                                <div class="mb-3">
+                                        <label for="titleNews" class="form-label">Titolo della news</label>
+                                    <input type="text" name="titoloNews" class="form-control" id="titleNews" aria-describedby="emailHelp" placeholder="Incolla qui il titolo della news">
+
+                                </div>
+                                <div class="mb-3">
+                                    <label for="textNews" class="form-label">Testo della news</label>
+                                    <textarea name="textNews" class="form-control" id="textNews" placeholder="Incolla qui il testo della news"></textarea>
+
+                                </div>
+
+                                <button type="submit" class="btn btn-primary">Analizza</button>
+                            </form>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
             <p class="card-text">
             <form method="post" action="scegliTesto">
                 ${textNews}
@@ -69,11 +106,6 @@
         </div>
     </div>
 </div>
-<script>
-    var inputElements = document.getElementsByTagName("input");
-    for(var i=1; i<inputElements.length; i++){
-        inputElements[i].setAttribute("type","radio");
-    }
-</script>
+
 </body>
 </html>

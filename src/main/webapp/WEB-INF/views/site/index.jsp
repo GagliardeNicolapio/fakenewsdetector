@@ -19,16 +19,37 @@
             </c:if>
         </div>
         <div class="input-group mb-3">
+            <p>Inserisci il link della news</p>
             <form class="grid-inline" method="post" action="scegliTitolo" style="width: 100%">
                 <input type="text" class="form-control" placeholder="News Link" name="link"
                        aria-label="Recipient's username" aria-describedby="button-addon2">
                 <button class="btn btn-secondary" type="submit" id="button-addon2"  onclick="startPreloader()" >Invia</button>
             </form>
        </div>
+
+        <p>Oppure</p>
+        <form action="feedback" method="post" style="width: 50%; color: white;">
+            <input type="hidden" name="flagCopyPaste" value="1">
+            <div class="row mb-3">
+                <label for="titoloNews" class="col-sm-2 col-form-label">Titolo della news</label>
+                <div class="col-sm-10">
+                    <input type="text" placeholder="Incolla qui il titolo della news" class="form-control" id="titoloNews" name="titoloNews" required>
+                </div>
+            </div>
+            <div class="row mb-3">
+                <label for="textNews" class="col-sm-2 col-form-label">Testo della news</label>
+                <div class="col-sm-10">
+                    <textarea name="textNews" class="form-control" id="textNews" placeholder="Incolla qui il testo della news" required></textarea>
+
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Analizza</button>
+        </form>
+
         <div class="infoArea container-sm">
-            <p>
                 Info
-            </p>
+
         </div>
     </div>
 

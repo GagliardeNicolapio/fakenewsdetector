@@ -20,8 +20,14 @@ public class FeedbackServlet extends Controller {
         }
         else {
             request.setAttribute("testoAnalizzato", request.getParameter("textNews"));
-            request.setAttribute("titoloNews", session.getAttribute("titoloNews"));
+
+            if(request.getParameter("flagCopyPaste") != null && request.getParameter("flagCopyPaste").equals("1"))
+                request.setAttribute("titoloNews", request.getParameter("titoloNews"));
+            else
+                request.setAttribute("titoloNews", session.getAttribute("titoloNews"));
+
             request.getRequestDispatcher(view("site/feedback")).forward(request, response);
+
         }
     }
 

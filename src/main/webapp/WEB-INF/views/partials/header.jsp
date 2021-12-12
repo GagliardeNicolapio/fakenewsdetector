@@ -10,7 +10,7 @@
                 </a>
                 <c:if test="${not empty param.link}">
                     <div class="input-group" style="width: 60%;">
-                        <form class="grid-inline justify-center align-center" method="post" action="feedback" style="width: 100%;margin: auto">
+                        <form class="grid-inline justify-center align-center" method="post" action="scegliTitolo" style="width: 100%;margin: auto">
                             <input type="text" class="form-control" placeholder="News Link" name="link"
                                    aria-label="Recipient's username" aria-describedby="button-addon2">
                             <button class="btn btn-secondary" type="submit" onclick="startPreloader()" id="button-addon2">Invia</button>
