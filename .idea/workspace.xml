@@ -9,11 +9,15 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="d6a50c79-6d4b-4e0b-a86f-cadff01a3fe1" name="Changes" comment="Aggiunta pagina di addestramento">
+    <list default="true" id="d6a50c79-6d4b-4e0b-a86f-cadff01a3fe1" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/src/main/java/Controller/CSV2ARFFServlet.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/Controller/LoginServlet.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/Controller/TrainingServlet.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/Controller/http/FileServlet.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/webapp/WEB-INF/views/site/loginAdmin.jsp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/webapp/WEB-INF/views/site/trainingPage.jsp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/Controller/FeedbackServlet.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Controller/FeedbackServlet.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/webapp/CSS/header.css" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/webapp/CSS/header.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/webapp/WEB-INF/views/partials/header.jsp" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/webapp/WEB-INF/views/partials/header.jsp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/Controller/http/Controller.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Controller/http/Controller.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -59,6 +63,7 @@
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$/src/main/webapp/WEB-INF/lib/weka.jar" />
     <property name="list.type.of.created.stylesheet" value="CSS" />
+    <property name="nodejs_package_manager_path" value="npm" />
     <property name="project.structure.last.edited" value="Modules" />
     <property name="project.structure.proportion" value="0.15" />
     <property name="project.structure.side.proportion" value="0.28965518" />
@@ -70,6 +75,7 @@
       <recent name="C:\Users\Administrator\IdeaProjects\fakenewsdetector\src\main\webapp\WEB-INF\views\site" />
     </key>
     <key name="CopyClassDialog.RECENTS_KEY">
+      <recent name="Controller.http" />
       <recent name="Controller" />
     </key>
   </component>
@@ -185,11 +191,27 @@
       <workItem from="1638624686932" duration="194000" />
       <workItem from="1638625509615" duration="510000" />
       <workItem from="1638876095666" duration="6000" />
-      <workItem from="1638953000903" duration="8872000" />
+      <workItem from="1638953000903" duration="9608000" />
+      <workItem from="1639084338561" duration="107000" />
+      <workItem from="1639217721287" duration="6434000" />
+      <workItem from="1639239943623" duration="1389000" />
+      <workItem from="1639267551140" duration="774000" />
     </task>
+    <task id="LOCAL-00001" summary="Aggiunta interfaccia di addestramento">
+      <created>1638966228846</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1638966228846</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="Aggiunta interfaccia di addestramento" />
+    <option name="LAST_COMMIT_MESSAGE" value="Aggiunta interfaccia di addestramento" />
   </component>
 </project>
