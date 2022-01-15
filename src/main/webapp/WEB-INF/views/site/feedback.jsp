@@ -28,13 +28,7 @@
         }
     </c:otherwise>
 </c:choose>
-label{
-    border: 2px solid grey;
-    border-radius: 15px;
-    padding: 10px;
-    cursor: pointer;
-    margin-bottom: 7px;
-}
+
     </style>
 </head>
 
@@ -68,11 +62,9 @@ label{
             <div class="card-body">
                 <h5 class="card-title">Info</h5>
                 <p class="card-text">
-                    <form method="post" action="">
-                   ${textNews}
-                       <button type="submit" class="btn btn-primary">Analizza</button>
-                    </form>
-
+                   Titolo analizzato: ${titoloNews}
+                    <br>
+                    Testo analizzato: ${testoAnalizzato}
                 </p>
             </div>
         </div>
@@ -93,5 +85,6 @@ label{
             </div>
         </div>
     </div>
+
 </body>
 </html>
