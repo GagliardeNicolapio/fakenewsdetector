@@ -36,7 +36,7 @@ public class FileServlet extends HttpServlet {
     @Override
     public void init() throws ServletException {
 
-        this.basePath = System.getenv("CATALINA_HOME") + File.separator + "uploads";
+        this.basePath = System.getenv("CATALINA_HOME") + File.separator + "dataset";
 
         // Validate base path.
         if (this.basePath == null) {
