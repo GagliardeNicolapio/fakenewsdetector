@@ -111,6 +111,10 @@ public class TrainingServlet extends Controller {
             NaiveBayes naiveBayes = new NaiveBayes();
             Evaluation evaluation = new Evaluation(newData);
             evaluation.crossValidateModel(naiveBayes, newData, K_FOLDS, new Random(new Date().getTime()));
+            String naiveStats = "Naive Bayes Summary: "+evaluation.toSummaryString() +
+                            "\nNaive Bayes: "+evaluation.toClassDetailsString() +
+                            "\nNaive Bayes: "+evaluation.toMatrixString();
+            writeStats(naiveStats,"NaiveStats");
             System.out.println("Naive Bayes Summary: "+evaluation.toSummaryString());
             System.out.println("Naive Bayes: "+evaluation.toClassDetailsString());
             System.out.println("Naive Bayes: "+evaluation.toMatrixString());
@@ -119,6 +123,10 @@ public class TrainingServlet extends Controller {
             J48 decisionTree = new J48();
             Evaluation evaluationTree = new Evaluation(newData);
             evaluationTree.crossValidateModel(decisionTree, newData, K_FOLDS, new Random(new Date().getTime()));
+            String j48Stats = "Decision Tree Summary: "+evaluationTree.toSummaryString() +
+                    "\nDecision Tree: "+evaluationTree.toClassDetailsString() +
+                    "\nDecision Tree: "+evaluationTree.toMatrixString();
+            writeStats(j48Stats,"j48Stats");
             System.out.println("Decision Tree Summary: "+ evaluationTree.toSummaryString());
             System.out.println("Decision Tree: "+ evaluationTree.toClassDetailsString());
             System.out.println("Decision Tree: "+ evaluationTree.toMatrixString());
@@ -139,11 +147,18 @@ public class TrainingServlet extends Controller {
 
 
     public void writeIndices(int[] indices) throws IOException {
-        FileWriter fileWriter = new FileWriter("C:\\Program Files\\Apache Software Foundation\\Tomcat 9.0\\dataset\\indici.txt");
+        FileWriter fileWriter = new FileWriter("C:\\Program Files\\Apache Software Foundation\\Tomcat 9.0\\model\\indiciBestFirst.txt");
         for(int i:indices)
             fileWriter.append(i+"\n");
 
         fileWriter.append("\n"+"totale: "+indices.length);
+        fileWriter.flush();
+        fileWriter.close();
+    }
+
+    public void writeStats(String stats, String filename) throws IOException {
+        FileWriter fileWriter = new FileWriter("C:\\Program Files\\Apache Software Foundation\\Tomcat 9.0\\model\\"+filename+".txt");
+        fileWriter.write(stats);
         fileWriter.flush();
         fileWriter.close();
     }
