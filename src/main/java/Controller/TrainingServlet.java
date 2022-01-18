@@ -7,29 +7,22 @@ import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Random;
-
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 import weka.attributeSelection.*;
 import weka.classifiers.Evaluation;
 import weka.classifiers.bayes.NaiveBayes;
-import weka.classifiers.meta.AttributeSelectedClassifier;
 import weka.classifiers.trees.J48;
 import weka.core.*;
 import weka.core.converters.ConverterUtils;
-import weka.core.stemmers.LovinsStemmer;
 import weka.core.stemmers.SnowballStemmer;
 import weka.core.stopwords.Rainbow;
 import weka.core.tokenizers.WordTokenizer;
 import weka.filters.Filter;
 import weka.filters.unsupervised.attribute.Remove;
-import weka.filters.unsupervised.attribute.ReplaceMissingWithUserConstant;
 import weka.filters.unsupervised.attribute.StringToWordVector;
 
 @WebServlet(name = "TrainingServlet", value = "/trainingModel", loadOnStartup = 0)
@@ -44,12 +37,15 @@ public class TrainingServlet extends Controller {
             ConverterUtils.DataSource dataSource = new ConverterUtils.DataSource("C:\\Program Files\\Apache Software Foundation\\Tomcat 9.0\\dataset\\FakeAndTrueRandomWithCovidTest.arff");
             Instances instances = dataSource.getDataSet();
 
+            String preStat;
             //DATA CLEANING
-            System.out.println("Num instance data cleaning: "+instances.numInstances());
-            System.out.println("Num campi vuoti: "+instances.attributeStats(1).missingCount);
+            System.out.println("Numero instance data cleaning: "+instances.numInstances());
+            System.out.println("Numero campi vuoti: "+instances.attributeStats(1).missingCount);
+            preStat = "Numero instanze data cleaning: "+instances.numInstances()+
+                    "\nNumero campi vuoti: "+instances.attributeStats(1).missingCount;
             instances.removeIf(Instance::hasMissingValue);
-            System.out.println("Num campi vuoti after remove: "+instances.attributeStats(1).missingCount);
-
+            System.out.println("Numero campi vuoti dopo remove: "+instances.attributeStats(1).missingCount);
+            preStat = preStat + "\nNumero campi vuoti dopo remove: "+instances.attributeStats(1).missingCount;
             //FEATURE SELECTION
             //sono state gia tolte le colonne subject e date
             /*Remove remove = new Remove();
@@ -58,7 +54,8 @@ public class TrainingServlet extends Controller {
             instances = Filter.useFilter(instances,remove);*/
 
             //STRING TO WORD VECTOR
-            System.out.println("Inizio to word vector");
+            System.out.println("Inizio TF-IDF con StringToWordVector");
+            preStat = preStat + "\nStart TF-IDF with StringToWordVector";
             StringToWordVector stringToWordVector = new StringToWordVector();
             stringToWordVector.setIDFTransform(true);
             stringToWordVector.setTFTransform(true);
@@ -69,18 +66,20 @@ public class TrainingServlet extends Controller {
             wordTokenizer.setDelimiters(".,;:'\"()?!/ -_><&#");
             stringToWordVector.setTokenizer(wordTokenizer);
             stringToWordVector.setInputFormat(instances);
-            stringToWordVector.setWordsToKeep(30);
+            stringToWordVector.setWordsToKeep(10);
             instances = Filter.useFilter(instances,stringToWordVector);
-            System.out.println("fine to word vector");
+            System.out.println("Fine TF-IDF con StringToWordVector");
+            preStat = preStat + "\nFine TF-IDF con StringToWordVector";
 
             //setto il num di colonna della var target
             instances.setClassIndex(0);
 
             //stampo il numero di parole trovate
             System.out.println("Numero di parole identificate: "+instances.numAttributes());
-
+            preStat = preStat + "\nNumero di parole identificate: "+instances.numAttributes();
             //ATTRIBUTE SELECTION
             System.out.println("Inizio selection");
+            preStat = preStat + "\nInizio selection";
             AttributeSelection attributeSelection = new AttributeSelection();
             CfsSubsetEval eval = new CfsSubsetEval();
             BestFirst bestFirst = new BestFirst();
@@ -91,8 +90,11 @@ public class TrainingServlet extends Controller {
             int[] indices = attributeSelection.selectedAttributes();
             System.out.println("Indici da conservare: "+Utils.arrayToString(indices));
             System.out.println("Numero indici(parole da utilizzare): "+indices.length);
+            preStat = preStat + "\nIndici da conservare: "+Utils.arrayToString(indices)+
+                                "\nNumero indici(parole da utilizzare): "+indices.length;
             writeIndices(indices); //salvo gli indici in un file
             System.out.println("Fine selection");
+            preStat = preStat + "\nFine selection";
 
             //ATTRIBUTE REMOVE
             Remove removeFilter = new Remove();
@@ -107,14 +109,20 @@ public class TrainingServlet extends Controller {
             System.out.println("Indice Classe: "+instances.classIndex());
             System.out.println("Stats Class attribute: "+instances.attributeStats(instances.classIndex()));
 
-            //ADDESTRAMENTO NAIVE BAYES
+            preStat = preStat + "\nNumero Classi: "+instances.numClasses()+
+                    "\nIndice Classe: "+instances.classIndex() +
+                    "\nStats Class attribute: "+instances.attributeStats(instances.classIndex());
+
+            writeStats(preStat,"preStatFile-"+new Date().getTime());
+
+                    //ADDESTRAMENTO NAIVE BAYES
             NaiveBayes naiveBayes = new NaiveBayes();
             Evaluation evaluation = new Evaluation(newData);
             evaluation.crossValidateModel(naiveBayes, newData, K_FOLDS, new Random(new Date().getTime()));
             String naiveStats = "Naive Bayes Summary: "+evaluation.toSummaryString() +
                             "\nNaive Bayes: "+evaluation.toClassDetailsString() +
                             "\nNaive Bayes: "+evaluation.toMatrixString();
-            writeStats(naiveStats,"NaiveStats");
+            writeStats(naiveStats,"NaiveStats-"+new Date().getTime());
             System.out.println("Naive Bayes Summary: "+evaluation.toSummaryString());
             System.out.println("Naive Bayes: "+evaluation.toClassDetailsString());
             System.out.println("Naive Bayes: "+evaluation.toMatrixString());
@@ -126,7 +134,7 @@ public class TrainingServlet extends Controller {
             String j48Stats = "Decision Tree Summary: "+evaluationTree.toSummaryString() +
                     "\nDecision Tree: "+evaluationTree.toClassDetailsString() +
                     "\nDecision Tree: "+evaluationTree.toMatrixString();
-            writeStats(j48Stats,"j48Stats");
+            writeStats(j48Stats,"j48Stats-"+new Date().getTime());
             System.out.println("Decision Tree Summary: "+ evaluationTree.toSummaryString());
             System.out.println("Decision Tree: "+ evaluationTree.toClassDetailsString());
             System.out.println("Decision Tree: "+ evaluationTree.toMatrixString());
