@@ -33,7 +33,7 @@ public class HomeServlet extends Controller {
             System.out.println("Modello DecisionTree non presente");
         }
         try {
-            Instances dataset = ConverterUtils.DataSource.read("/FakeNewsDetector/dataset/FakeAndTrueRandomWithCovidTest.arff");
+            Instances dataset = ConverterUtils.DataSource.read("C:\\Program Files\\Apache Software Foundation\\Tomcat 9.0\\dataset\\FakeAndTrueRandomWithCovidTest.arff");
             if(dataset.classIndex() == -1){
                 dataset.setClassIndex(dataset.numAttributes()-1);
             }
