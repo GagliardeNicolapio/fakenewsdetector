@@ -69,15 +69,18 @@ public class TrainingServlet extends Controller {
             wordTokenizer.setDelimiters(".,;:'\"()?!/ -_><&#");
             stringToWordVector.setTokenizer(wordTokenizer);
             stringToWordVector.setInputFormat(instances);
-            stringToWordVector.setWordsToKeep(50);
+            stringToWordVector.setWordsToKeep(30);
             instances = Filter.useFilter(instances,stringToWordVector);
             System.out.println("fine to word vector");
 
             //setto il num di colonna della var target
             instances.setClassIndex(0);
 
+            //stampo il numero di parole trovate
+            System.out.println("Numero di parole identificate: "+instances.numAttributes());
+
             //ATTRIBUTE SELECTION
-            System.out.println("inizio selection");
+            System.out.println("Inizio selection");
             AttributeSelection attributeSelection = new AttributeSelection();
             CfsSubsetEval eval = new CfsSubsetEval();
             BestFirst bestFirst = new BestFirst();
@@ -87,7 +90,7 @@ public class TrainingServlet extends Controller {
 
             int[] indices = attributeSelection.selectedAttributes();
             System.out.println("Indici da conservare: "+Utils.arrayToString(indices));
-            System.out.println("Num tot indici: "+indices.length);
+            System.out.println("Numero indici(parole da utilizzare): "+indices.length);
             writeIndices(indices); //salvo gli indici in un file
             System.out.println("Fine selection");
 
@@ -97,6 +100,8 @@ public class TrainingServlet extends Controller {
             removeFilter.setInvertSelection(true);
             removeFilter.setInputFormat(instances);
             Instances newData = Filter.useFilter(instances, removeFilter);
+
+            System.out.println("Numero di attributi(parole) rimossi: "+(instances.numAttributes()-newData.numAttributes()));
 
             System.out.println("Numero Classi: "+instances.numClasses());
             System.out.println("Indice Classe: "+instances.classIndex());
@@ -124,6 +129,9 @@ public class TrainingServlet extends Controller {
             getServletContext().setAttribute("naiveModel",SerializationHelper.read("C:\\Program Files\\Apache Software Foundation\\Tomcat 9.0\\model\\naiveBayes.model"));
             getServletContext().setAttribute("dTreeModel",SerializationHelper.read("C:\\Program Files\\Apache Software Foundation\\Tomcat 9.0\\model\\j48.model"));
 
+            Alert alert = new Alert("Modello addestrato con successo");
+            request.setAttribute("alert",alert);
+            request.getRequestDispatcher(view("site/index")).forward(request, response);
         } catch (Exception e) {
             e.printStackTrace();
         }

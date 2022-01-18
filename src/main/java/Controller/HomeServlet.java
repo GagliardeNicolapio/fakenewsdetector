@@ -27,7 +27,7 @@ public class HomeServlet extends Controller {
         }
         try {
             Classifier dTree = (Classifier) SerializationHelper.read(
-                    "C:\\Program Files\\Apache Software Foundation\\Tomcat 9.0\\model\\decisionTree.model");
+                    "C:\\Program Files\\Apache Software Foundation\\Tomcat 9.0\\model\\j48.model");
             getServletContext().setAttribute("dTreeModel",dTree);
         }catch (Exception e){
             System.out.println("Modello DecisionTree non presente");
