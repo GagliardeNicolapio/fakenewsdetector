@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Random;
 
 import weka.attributeSelection.*;
@@ -27,6 +28,7 @@ import weka.core.stemmers.SnowballStemmer;
 import weka.core.stopwords.Rainbow;
 import weka.core.tokenizers.WordTokenizer;
 import weka.filters.Filter;
+import weka.filters.unsupervised.attribute.Remove;
 import weka.filters.unsupervised.attribute.ReplaceMissingWithUserConstant;
 import weka.filters.unsupervised.attribute.StringToWordVector;
 
@@ -39,16 +41,14 @@ public class TrainingServlet extends Controller {
             final int K_FOLDS = 10;
 
             //carico il dataset
-            ConverterUtils.DataSource dataSource = new ConverterUtils.DataSource("C:\\Users\\gagli\\Desktop\\FakeAndTrueRandomWithCovidTest.arff");
+            ConverterUtils.DataSource dataSource = new ConverterUtils.DataSource("C:\\Program Files\\Apache Software Foundation\\Tomcat 9.0\\dataset\\FakeAndTrueRandomWithCovidTest.arff");
             Instances instances = dataSource.getDataSet();
 
             //DATA CLEANING
+            System.out.println("Num instance data cleaning: "+instances.numInstances());
             System.out.println("Num campi vuoti: "+instances.attributeStats(1).missingCount);
-            System.out.println("Num attributes: "+instances.numInstances());
             instances.removeIf(Instance::hasMissingValue);
-            System.out.println("Num campi vuoti: "+instances.attributeStats(1).missingCount);
-            System.out.println("Num attributes: "+instances.numInstances());
-
+            System.out.println("Num campi vuoti after remove: "+instances.attributeStats(1).missingCount);
 
             //FEATURE SELECTION
             //sono state gia tolte le colonne subject e date
@@ -69,17 +69,12 @@ public class TrainingServlet extends Controller {
             wordTokenizer.setDelimiters(".,;:'\"()?!/ -_><&#");
             stringToWordVector.setTokenizer(wordTokenizer);
             stringToWordVector.setInputFormat(instances);
-            stringToWordVector.setWordsToKeep(1000000);
+            stringToWordVector.setWordsToKeep(50);
             instances = Filter.useFilter(instances,stringToWordVector);
             System.out.println("fine to word vector");
 
             //setto il num di colonna della var target
-            if(instances.classIndex() == -1)
-                instances.setClassIndex(instances.numAttributes()-1);
-
-            System.out.println("Num attributes: "+instances.numAttributes());
-            System.out.println("Num instances: "+instances.numInstances());
-            System.out.println("Num classes: "+instances.numClasses());
+            instances.setClassIndex(0);
 
             //ATTRIBUTE SELECTION
             System.out.println("inizio selection");
@@ -89,42 +84,45 @@ public class TrainingServlet extends Controller {
             attributeSelection.setSearch(bestFirst);
             attributeSelection.setEvaluator(eval);
             attributeSelection.SelectAttributes(instances);
+
             int[] indices = attributeSelection.selectedAttributes();
             System.out.println("Indici da conservare: "+Utils.arrayToString(indices));
             System.out.println("Num tot indici: "+indices.length);
             writeIndices(indices); //salvo gli indici in un file
+            System.out.println("Fine selection");
 
             //ATTRIBUTE REMOVE
-            int j=0;
-            for(int i=0; i<instances.numAttributes(); i++){
-                if(indices[j]!=i){
-                    instances.remove(i);
-                }else{
-                    j++;
-                    continue;
-                }
-            }
+            Remove removeFilter = new Remove();
+            removeFilter.setAttributeIndicesArray(indices);
+            removeFilter.setInvertSelection(true);
+            removeFilter.setInputFormat(instances);
+            Instances newData = Filter.useFilter(instances, removeFilter);
 
-            System.out.println("Num tot attibutes rimasti: "+instances.numAttributes());
-
+            System.out.println("Numero Classi: "+instances.numClasses());
+            System.out.println("Indice Classe: "+instances.classIndex());
+            System.out.println("Stats Class attribute: "+instances.attributeStats(instances.classIndex()));
 
             //ADDESTRAMENTO NAIVE BAYES
             NaiveBayes naiveBayes = new NaiveBayes();
-            Evaluation evaluation = new Evaluation(instances);
-            evaluation.crossValidateModel(naiveBayes, instances, K_FOLDS, new Random(new Date().getTime()));
+            Evaluation evaluation = new Evaluation(newData);
+            evaluation.crossValidateModel(naiveBayes, newData, K_FOLDS, new Random(new Date().getTime()));
+            System.out.println("Naive Bayes Summary: "+evaluation.toSummaryString());
             System.out.println("Naive Bayes: "+evaluation.toClassDetailsString());
+            System.out.println("Naive Bayes: "+evaluation.toMatrixString());
 
             //ADDESTRAMENTO J48
             J48 decisionTree = new J48();
-            Evaluation evaluationTree = new Evaluation(instances);
-            evaluationTree.crossValidateModel(decisionTree, instances, K_FOLDS, new Random(new Date().getTime()));
+            Evaluation evaluationTree = new Evaluation(newData);
+            evaluationTree.crossValidateModel(decisionTree, newData, K_FOLDS, new Random(new Date().getTime()));
+            System.out.println("Decision Tree Summary: "+ evaluationTree.toSummaryString());
             System.out.println("Decision Tree: "+ evaluationTree.toClassDetailsString());
+            System.out.println("Decision Tree: "+ evaluationTree.toMatrixString());
 
             //SALVATAGGIO MODELLI
-            SerializationHelper.write("../model/naiveBayes.model", naiveBayes);
-            SerializationHelper.write("../model/j48.model", decisionTree);
-            getServletContext().setAttribute("naiveModel",SerializationHelper.read("../model/naiveBayes.model"));
-            getServletContext().setAttribute("dTreeModel",SerializationHelper.read("../model/j48.model"));
+            SerializationHelper.write("C:\\Program Files\\Apache Software Foundation\\Tomcat 9.0\\model\\naiveBayes.model", naiveBayes);
+            SerializationHelper.write("C:\\Program Files\\Apache Software Foundation\\Tomcat 9.0\\model\\j48.model", decisionTree);
+            getServletContext().setAttribute("naiveModel",SerializationHelper.read("C:\\Program Files\\Apache Software Foundation\\Tomcat 9.0\\model\\naiveBayes.model"));
+            getServletContext().setAttribute("dTreeModel",SerializationHelper.read("C:\\Program Files\\Apache Software Foundation\\Tomcat 9.0\\model\\j48.model"));
 
         } catch (Exception e) {
             e.printStackTrace();
