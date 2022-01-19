@@ -48,31 +48,34 @@ public class FeedbackServlet extends Controller {
 
             if(naive != null && dTree != null){
                 try {
-                    ArrayList<Attribute> attributeList = new ArrayList<>();
+                    //ArrayList<Attribute> attributeList = new ArrayList<>();
 
-                    Attribute title = new Attribute("title", (List<String>) null);
-                    Attribute text = new Attribute("text", (List<String>) null);
+                    /*Attribute title = new Attribute("title", (List<String>) null);
+                    Attribute text = new Attribute("text", (List<String>) null);*/
 
-                    ArrayList<String> classVal = new ArrayList<>();
+                    /*ArrayList<String> classVal = new ArrayList<>();
                     classVal.add("fake");
-                    classVal.add("true");
+                    classVal.add("true");*/
 
-                    attributeList.add(title);
+                    /*attributeList.add(title);
                     attributeList.add(text);
-                    attributeList.add(new Attribute("varTarget",classVal));
+                    attributeList.add(new Attribute("varTarget",classVal));*/
 
-                    Instances data = new Instances("stream",attributeList,0); //dataset che conterrà la nuova istanza da predire
-                    Instance inst_co = new DenseInstance(data.numAttributes());
-                    inst_co.setDataset(data);
+                    //Instances data = new Instances("stream",attributeList,0); //dataset che conterrà la nuova istanza da predire
+                    Instances originalDataset = (Instances)getServletContext().getAttribute("dataset");
+                    Instance inst_co = new DenseInstance(originalDataset.numAttributes());
+                    inst_co.setDataset(originalDataset);
 
                     System.out.println("Titolo ricevuto: "+titolo);
                     System.out.println("Testo ricevuto: "+testo);
 
                     //settiamo il valore degli attributi dell'istanza aggiunta alle istanze
-                    inst_co.setValue(title,titolo);
-                    inst_co.setValue(text, testo);
+                    inst_co.setValue(0,titolo);
+                    inst_co.setValue(1, testo);
                     System.out.println(inst_co.toString());
-                    data.add(inst_co); //ora abbiamo un dataset con una sola istanza da predire
+                    originalDataset.add(inst_co); //ora abbiamo un dataset con una sola istanza da predire
+
+                    System.out.println("Prima istanza preStringtoVector: "+originalDataset.firstInstance().toString());
 
                     StringToWordVector stringToWordVector = new StringToWordVector();
                     stringToWordVector.setIDFTransform(true);
@@ -83,27 +86,37 @@ public class FeedbackServlet extends Controller {
                     WordTokenizer wordTokenizer = new WordTokenizer();
                     wordTokenizer.setDelimiters(".,;:'\"()?!/ -_><&#");
                     stringToWordVector.setTokenizer(wordTokenizer);
-                    stringToWordVector.setInputFormat(data);
+                    stringToWordVector.setInputFormat(originalDataset);
                     stringToWordVector.setWordsToKeep(10);
-                    data = Filter.useFilter(data,stringToWordVector); // applichiamo string to word vector al dataset con una singola istanza
+                    originalDataset = Filter.useFilter(originalDataset,stringToWordVector); // applichiamo string to word vector al dataset con una singola istanza
 
-                    data.setClassIndex(0);
-                    data.setRelationName("stream");
+                    originalDataset.setClassIndex(0);
+                    //data.setRelationName("stream");
 
-                    System.out.println("Stampa delle istanze data: "+data.toString());
-                    System.out.println("Class index data: "+data.classIndex());
-                    System.out.println("Numero istanze data: "+data.numInstances());
-                    System.out.println("Numero classi, dovrebbero essere 2 (data): "+data.numClasses());
+                    //System.out.println("Stampa delle istanze data: "+data.toString());
+                    System.out.println("Class index data: "+originalDataset.classIndex());
+                    System.out.println("Numero istanze data: "+originalDataset.numInstances());
+                    System.out.println("Numero classi, dovrebbero essere 2 (data): "+originalDataset.numClasses());
 
-                    System.out.println("Prima istanza: "+data.firstInstance().toString());
+                    System.out.println("Prima istanza: "+originalDataset.firstInstance().toString());
 
-                    double naiveIndex = naive.classifyInstance(data.firstInstance());
-                    double dTreeIndex = dTree.classifyInstance(data.firstInstance());
-                    String naiveLabel = naiveIndex < 1 ? "false":"true";
-                    String dTreeLabel = dTreeIndex < 1 ? "false":"true";
+                    //con distributionForInstance abbiamo le probabilità e possiamo usare il grafico in percentuale
+                    double[] naiveIndex = naive.distributionForInstance(originalDataset.firstInstance()); //questa è una istanza del dataset originale che comunque da errore
+                    double[] dTreeIndex = dTree.distributionForInstance(originalDataset.firstInstance());
+                    /*String naiveLabel = naiveIndex < 1 ? "false":"true";
+                    String dTreeLabel = dTreeIndex < 1 ? "false":"true";*/
 
-                    request.setAttribute("naiveLabel",naiveLabel);
-                    request.setAttribute("dTreeLabel",dTreeLabel);
+                    for(int i=0; i<naiveIndex.length; i++){
+                        System.out.println("Naive ha predetto: "+naiveIndex[i]);
+                    }
+                    for(int i=0; i<dTreeIndex.length; i++){
+                        System.out.println("J48 ha predetto: "+dTreeIndex[i]);
+                    }
+
+
+
+                    /*request.setAttribute("naiveLabel",naiveLabel);
+                    request.setAttribute("dTreeLabel",dTreeLabel);*/
                     request.getRequestDispatcher(view("site/feedback")).forward(request, response);
                 } catch (Exception e) {
                     e.printStackTrace();
