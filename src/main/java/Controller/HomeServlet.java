@@ -3,9 +3,15 @@ package Controller;
 import Controller.http.Controller;
 import Model.Components.Alert;
 import weka.classifiers.Classifier;
+import weka.core.Instance;
 import weka.core.Instances;
 import weka.core.SerializationHelper;
 import weka.core.converters.ConverterUtils;
+import weka.core.stemmers.SnowballStemmer;
+import weka.core.stopwords.Rainbow;
+import weka.core.tokenizers.WordTokenizer;
+import weka.filters.Filter;
+import weka.filters.unsupervised.attribute.StringToWordVector;
 
 import javax.servlet.*;
 import javax.servlet.http.*;
@@ -34,9 +40,8 @@ public class HomeServlet extends Controller {
         }
         try {
             Instances dataset = ConverterUtils.DataSource.read("C:\\Program Files\\Apache Software Foundation\\Tomcat 9.0\\dataset\\FakeAndTrueRandomWithCovidTest.arff");
-            if(dataset.classIndex() == -1){
-                dataset.setClassIndex(dataset.numAttributes()-1);
-            }
+            dataset.removeIf(Instance::hasMissingValue);
+
             getServletContext().setAttribute("dataset",dataset);
         } catch (Exception e) {
             e.printStackTrace();
