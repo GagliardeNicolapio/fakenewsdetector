@@ -15,6 +15,7 @@ import java.util.*;
 import weka.attributeSelection.*;
 import weka.classifiers.Evaluation;
 import weka.classifiers.bayes.NaiveBayes;
+import weka.classifiers.evaluation.Prediction;
 import weka.classifiers.trees.J48;
 import weka.core.*;
 import weka.core.converters.ConverterUtils;
@@ -126,6 +127,8 @@ public class TrainingServlet extends Controller {
             System.out.println("Naive Bayes Summary: "+evaluation.toSummaryString());
             System.out.println("Naive Bayes: "+evaluation.toClassDetailsString());
             System.out.println("Naive Bayes: "+evaluation.toMatrixString());
+            writePredictions(evaluation.predictions(),"predictionsNaiveBayes.txt");
+
 
             //ADDESTRAMENTO J48
             J48 decisionTree = new J48();
@@ -138,6 +141,7 @@ public class TrainingServlet extends Controller {
             System.out.println("Decision Tree Summary: "+ evaluationTree.toSummaryString());
             System.out.println("Decision Tree: "+ evaluationTree.toClassDetailsString());
             System.out.println("Decision Tree: "+ evaluationTree.toMatrixString());
+            writePredictions(evaluationTree.predictions(),"predictionsJ48.txt");
 
             //SALVATAGGIO MODELLI
             SerializationHelper.write("C:\\Program Files\\Apache Software Foundation\\Tomcat 9.0\\model\\naiveBayes.model", naiveBayes);
@@ -171,6 +175,16 @@ public class TrainingServlet extends Controller {
         fileWriter.close();
     }
 
+    public void writePredictions(ArrayList<Prediction> predictions, String fileName) throws IOException {
+        FileWriter fileWriter = new FileWriter("C:\\Program Files\\Apache Software Foundation\\Tomcat 9.0\\model\\"+fileName+".txt");
+        int i=0;
+        for(Prediction prediction : predictions){
+            fileWriter.append("Num: "+i+" Actual: "+ prediction.actual()+" Predicted: "+prediction.predicted()+" error: "+(prediction.actual()==prediction.predicted() ? "" : "+"));
+            fileWriter.flush();
+            i++;
+        }
+        fileWriter.close();
+    }
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
