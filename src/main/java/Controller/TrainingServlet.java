@@ -10,9 +10,8 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.*;
-import weka.attributeSelection.*;
 import weka.classifiers.Evaluation;
-import weka.classifiers.bayes.NaiveBayes;
+import weka.classifiers.bayes.NaiveBayesMultinomial;
 import weka.classifiers.evaluation.Prediction;
 import weka.classifiers.trees.J48;
 import weka.core.*;
@@ -97,7 +96,7 @@ public class TrainingServlet extends Controller {
             //stampo il numero di parole trovate
             System.out.println("Numero di parole identificate: "+instances.numAttributes());
             preStat = preStat + "\nNumero di parole identificate: "+instances.numAttributes();
-            long selectionStartTime = System.nanoTime();
+           /* long selectionStartTime = System.nanoTime();
             //ATTRIBUTE SELECTION
             System.out.println("Inizio selection");
             preStat = preStat + "\nInizio selection";
@@ -125,9 +124,16 @@ public class TrainingServlet extends Controller {
             heapFreeSize = Runtime.getRuntime().freeMemory() / (1024 * 1024);
             System.out.println("Utilizzo heap attuale postSelection: "+heapSize+" MB"+
                     "\nMax Heap postSelection: "+heapMaxSize+" MB"+
-                    "\nFree heap space postSelection: "+heapFreeSize+" MB");
+                    "\nFree heap space postSelection: "+heapFreeSize+" MB");*/
 
-
+            int[] indices = {1,1120,2312,2600,4385,5113,5118,5445,6215,7052,7538,8060,8874,9070,9310,11712,11716,12668,
+                    14756,14951,16386,16457,16679,17163,17957,19363,19960,21768,22077,23468,24705,25229,27010,27750,28287,
+                    28335,28443,28635,28840,29266,30176,30210,30426,30467,30540,30582,32001,34260,35644,36137,37578,37915,
+                    38086,38474,38847,38849,38850,39525,39532,39872,39921,40553,40588,40673,41800,42709,43403,43531,44306,
+                    44617,45246,45412,45417,45419,45526,46438,46775,46792,47027,47033,47205,47256,47268,47668,47682,47902,
+                    47938,48212,48583,48934,49430,49565,49688,49737,50212,50536,50894,51158,51436,52003,52111,52630,53223,
+                    53305,53322,53645,53647,54383,54464,54713,54744,54829,54866,54984,55360,56166,56641,56678,56865,57054,
+                    57175,57194,57392,58021,58203,58432,58437,58756,58816,58824,58855,58930,0};
             //ATTRIBUTE REMOVE
             Remove removeFilter = new Remove();
             removeFilter.setAttributeIndicesArray(indices);
@@ -146,8 +152,8 @@ public class TrainingServlet extends Controller {
                     "\nStats Class attribute: "+instances.attributeStats(instances.classIndex());
 
             long trainStartTime = System.nanoTime();
-                    //ADDESTRAMENTO NAIVE BAYES
-            NaiveBayes naiveBayes = new NaiveBayes();
+            //ADDESTRAMENTO NAIVE BAYES
+            NaiveBayesMultinomial naiveBayes = new NaiveBayesMultinomial();
             Evaluation evaluation = new Evaluation(newData);
             evaluation.crossValidateModel(naiveBayes, newData, K_FOLDS, new Random(new Date().getTime()));
             String naiveStats = "Naive Bayes Summary: "+evaluation.toSummaryString() +
@@ -157,11 +163,11 @@ public class TrainingServlet extends Controller {
             System.out.println("Naive Bayes Summary: "+evaluation.toSummaryString());
             System.out.println("Naive Bayes: "+evaluation.toClassDetailsString());
             System.out.println("Naive Bayes: "+evaluation.toMatrixString());
-            writePredictions(evaluation.predictions(),"predictionsNaiveBayes.txt");
+            writePredictions(evaluation.predictions(),"predictionsNaiveBayes"); //la stampa delle predizioni funziona
 
-
+            //Ho commentato il J48 perchè impiegava troppo tempo, volevo solo testare NaiveMultinominal, alla fine J48 è uguale
             //ADDESTRAMENTO J48
-            J48 decisionTree = new J48();
+            /*J48 decisionTree = new J48();
             Evaluation evaluationTree = new Evaluation(newData);
             evaluationTree.crossValidateModel(decisionTree, newData, K_FOLDS, new Random(new Date().getTime()));
             String j48Stats = "Decision Tree Summary: "+evaluationTree.toSummaryString() +
@@ -170,19 +176,19 @@ public class TrainingServlet extends Controller {
             writeStats(j48Stats,"j48Stats-"+new Date().getTime());
             System.out.println("Decision Tree Summary: "+ evaluationTree.toSummaryString());
             System.out.println("Decision Tree: "+ evaluationTree.toClassDetailsString());
-            System.out.println("Decision Tree: "+ evaluationTree.toMatrixString());
+            System.out.println("Decision Tree: "+ evaluationTree.toMatrixString());*/
             long trainEndTime = System.nanoTime();
             long trainTotalTime = trainEndTime - trainStartTime;
             System.out.println("Train time: "+trainTotalTime/1000000+" ms");
             preStat = preStat + "\nTrain time: "+trainTotalTime/1000000+" ms";
 
-            writePredictions(evaluationTree.predictions(),"predictionsJ48.txt");
+            //writePredictions(evaluationTree.predictions(),"predictionsJ48");
 
             //SALVATAGGIO MODELLI
             SerializationHelper.write("C:\\Program Files\\Apache Software Foundation\\Tomcat 9.0\\model\\naiveBayes.model", naiveBayes);
-            SerializationHelper.write("C:\\Program Files\\Apache Software Foundation\\Tomcat 9.0\\model\\j48.model", decisionTree);
+            //SerializationHelper.write("C:\\Program Files\\Apache Software Foundation\\Tomcat 9.0\\model\\j48.model", decisionTree);
             getServletContext().setAttribute("naiveModel",SerializationHelper.read("C:\\Program Files\\Apache Software Foundation\\Tomcat 9.0\\model\\naiveBayes.model"));
-            getServletContext().setAttribute("dTreeModel",SerializationHelper.read("C:\\Program Files\\Apache Software Foundation\\Tomcat 9.0\\model\\j48.model"));
+            //getServletContext().setAttribute("dTreeModel",SerializationHelper.read("C:\\Program Files\\Apache Software Foundation\\Tomcat 9.0\\model\\j48.model"));
             endTime = System.nanoTime();
             totalTime = endTime - startTime;
             System.out.println("Total time: "+totalTime/1000000+" ms");
@@ -220,7 +226,7 @@ public class TrainingServlet extends Controller {
         FileWriter fileWriter = new FileWriter("C:\\Program Files\\Apache Software Foundation\\Tomcat 9.0\\model\\"+fileName+".txt");
         int i=0;
         for(Prediction prediction : predictions){
-            fileWriter.append("Num: "+i+" Actual: "+ prediction.actual()+" Predicted: "+prediction.predicted()+" error: "+(prediction.actual()==prediction.predicted() ? "" : "+"));
+            fileWriter.append("\nNum: "+i+" Actual: "+ prediction.actual()+" Predicted: "+prediction.predicted()+" error: "+(prediction.actual()==prediction.predicted() ? "" : "+"));
             fileWriter.flush();
             i++;
         }

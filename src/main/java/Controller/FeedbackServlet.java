@@ -3,6 +3,8 @@ package Controller;
 import Controller.http.Controller;
 import Model.Components.Alert;
 import weka.classifiers.Classifier;
+import weka.classifiers.bayes.NaiveBayesMultinomial;
+import weka.classifiers.trees.J48;
 import weka.core.Attribute;
 import weka.core.DenseInstance;
 import weka.core.Instance;
@@ -19,8 +21,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 @WebServlet(name = "FeedbackServlet", value = "/feedback")
 public class FeedbackServlet extends Controller {
@@ -43,11 +43,16 @@ public class FeedbackServlet extends Controller {
             }
             request.setAttribute("titoloNews", titolo);
 
-            Classifier naive = (Classifier) getServletContext().getAttribute("naiveModel");
-            Classifier dTree = (Classifier) getServletContext().getAttribute("dTreeModel");
+            NaiveBayesMultinomial naive = (NaiveBayesMultinomial) getServletContext().getAttribute("naiveModel");
+            J48 dTree = (J48) getServletContext().getAttribute("dTreeModel");
 
             if(naive != null && dTree != null){
                 try {
+                    /*Questa prima parte commentata serve a creare un Instances simulando il dataset
+                    * ma con una sola istanza, ossia quella nuova da predire con titolo e testo dell'utente
+                    * e visto che l'errore è uguale anche se usiamo un istanza del dataset, utilizzeremo questa
+                    * parte credo, almeno non bisogna fare stringToVector su tutto il dataset ogni volta
+                    * ma solo su una istanza*/
                     //ArrayList<Attribute> attributeList = new ArrayList<>();
 
                     /*Attribute title = new Attribute("title", (List<String>) null);
@@ -61,20 +66,22 @@ public class FeedbackServlet extends Controller {
                     attributeList.add(text);
                     attributeList.add(new Attribute("varTarget",classVal));*/
 
-                    //Instances data = new Instances("stream",attributeList,0); //dataset che conterrà la nuova istanza da predire
+                    //Instances data = new Instances("stream",attributeList,0); //dataset che conterrà soltanto la nuova istanza da predire
                     Instances originalDataset = (Instances)getServletContext().getAttribute("dataset");
                     Instance inst_co = new DenseInstance(originalDataset.numAttributes());
-                    inst_co.setDataset(originalDataset);
+                    inst_co.setDataset(originalDataset); //da sostituire con data, ossia il dataset con una sola istanza
 
                     System.out.println("Titolo ricevuto: "+titolo);
                     System.out.println("Testo ricevuto: "+testo);
 
-                    //settiamo il valore degli attributi dell'istanza aggiunta alle istanze
+                    //settiamo il valore degli attributi della nuova istanza
                     inst_co.setValue(0,titolo);
                     inst_co.setValue(1, testo);
                     System.out.println(inst_co.toString());
-                    originalDataset.add(inst_co); //ora abbiamo un dataset con una sola istanza da predire
+                    //inserisco in coda la nuova istanza, quando utilizzeremo il dataset con una istanza, sarà l'unica presente nel dataset
+                    originalDataset.add(inst_co);
 
+                    //Sostituire con lastInstance per stampare la nuova istanza con titolo e testo dell'utente
                     System.out.println("Prima istanza preStringtoVector: "+originalDataset.firstInstance().toString());
 
                     StringToWordVector stringToWordVector = new StringToWordVector();
@@ -88,19 +95,22 @@ public class FeedbackServlet extends Controller {
                     stringToWordVector.setTokenizer(wordTokenizer);
                     stringToWordVector.setInputFormat(originalDataset);
                     stringToWordVector.setWordsToKeep(10);
-                    originalDataset = Filter.useFilter(originalDataset,stringToWordVector); // applichiamo string to word vector al dataset con una singola istanza
+                    // applico string to word vector al dataset originale, che contiene la nuova istanza in coda
+                    originalDataset = Filter.useFilter(originalDataset,stringToWordVector);
 
                     originalDataset.setClassIndex(0);
-                    //data.setRelationName("stream");
+                    //data.setRelationName("stream"); potrebbe servire quando si utilizza il dataset simulato con un istanza
 
-                    //System.out.println("Stampa delle istanze data: "+data.toString());
+                    //System.out.println("Stampa delle istanze data: "+data.toString()); è possibile solo con il dataset con un istanza, altrimenti stampa troppe cose
                     System.out.println("Class index data: "+originalDataset.classIndex());
                     System.out.println("Numero istanze data: "+originalDataset.numInstances());
                     System.out.println("Numero classi, dovrebbero essere 2 (data): "+originalDataset.numClasses());
 
+                    //Sostituire con lastInstance per stampare la nuova istanza dell'utente con TF-IDF applicato
                     System.out.println("Prima istanza: "+originalDataset.firstInstance().toString());
 
                     //con distributionForInstance abbiamo le probabilità e possiamo usare il grafico in percentuale
+                    //sostituire con lastInstance per fare la predizione sulla nuova istanza
                     double[] naiveIndex = naive.distributionForInstance(originalDataset.firstInstance()); //questa è una istanza del dataset originale che comunque da errore
                     double[] dTreeIndex = dTree.distributionForInstance(originalDataset.firstInstance());
                     /*String naiveLabel = naiveIndex < 1 ? "false":"true";
@@ -112,7 +122,6 @@ public class FeedbackServlet extends Controller {
                     for(int i=0; i<dTreeIndex.length; i++){
                         System.out.println("J48 ha predetto: "+dTreeIndex[i]);
                     }
-
 
 
                     /*request.setAttribute("naiveLabel",naiveLabel);

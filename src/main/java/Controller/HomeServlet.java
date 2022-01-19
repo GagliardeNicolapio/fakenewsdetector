@@ -2,17 +2,12 @@ package Controller;
 
 import Controller.http.Controller;
 import Model.Components.Alert;
-import weka.classifiers.Classifier;
+import weka.classifiers.bayes.NaiveBayesMultinomial;
+import weka.classifiers.trees.J48;
 import weka.core.Instance;
 import weka.core.Instances;
 import weka.core.SerializationHelper;
 import weka.core.converters.ConverterUtils;
-import weka.core.stemmers.SnowballStemmer;
-import weka.core.stopwords.Rainbow;
-import weka.core.tokenizers.WordTokenizer;
-import weka.filters.Filter;
-import weka.filters.unsupervised.attribute.StringToWordVector;
-
 import javax.servlet.*;
 import javax.servlet.http.*;
 import javax.servlet.annotation.*;
@@ -25,14 +20,14 @@ public class HomeServlet extends Controller {
     public void init() throws ServletException {
         super.init();
         try {
-            Classifier naive = (Classifier) SerializationHelper.read(
+            NaiveBayesMultinomial naive = (NaiveBayesMultinomial) SerializationHelper.read(
                     "C:\\Program Files\\Apache Software Foundation\\Tomcat 9.0\\model\\naiveBayes.model");
             getServletContext().setAttribute("naiveModel",naive);
         } catch (Exception e) {
             System.out.println("Modello NaiveBayes non presente");
         }
         try {
-            Classifier dTree = (Classifier) SerializationHelper.read(
+            J48 dTree = (J48) SerializationHelper.read(
                     "C:\\Program Files\\Apache Software Foundation\\Tomcat 9.0\\model\\j48.model");
             getServletContext().setAttribute("dTreeModel",dTree);
         }catch (Exception e){
