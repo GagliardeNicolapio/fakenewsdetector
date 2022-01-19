@@ -9,8 +9,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 import weka.attributeSelection.*;
 import weka.classifiers.Evaluation;
@@ -33,10 +31,24 @@ public class TrainingServlet extends Controller {
 
         try {
             final int K_FOLDS = 10;
-
+            long totalTime, startTime, endTime;
+            startTime = System.nanoTime();
             //carico il dataset
             ConverterUtils.DataSource dataSource = new ConverterUtils.DataSource("C:\\Program Files\\Apache Software Foundation\\Tomcat 9.0\\dataset\\FakeAndTrueRandomWithCovidTest.arff");
             Instances instances = dataSource.getDataSet();
+
+            // Utilizzo attuale dell'heap
+            long heapSize = Runtime.getRuntime().totalMemory() / (1024 * 1024);
+
+            // Get maximum size of heap in bytes. The heap cannot grow beyond this size.// Any attempt will result in an OutOfMemoryException.
+            long heapMaxSize = Runtime.getRuntime().maxMemory() / (1024 * 1024);
+
+            // Get amount of free memory within the heap in bytes. This size will increase // after garbage collection and decrease as new objects are created.
+            long heapFreeSize = Runtime.getRuntime().freeMemory() / (1024 * 1024);
+
+            System.out.println("Utilizzo heap attuale: "+heapSize+" MB"+
+                    "\nMax Heap: "+heapMaxSize+" MB"+
+                    "\nFree heap space: "+heapFreeSize+" MB");
 
             String preStat;
             //DATA CLEANING
@@ -67,7 +79,7 @@ public class TrainingServlet extends Controller {
             wordTokenizer.setDelimiters(".,;:'\"()?!/ -_><&#");
             stringToWordVector.setTokenizer(wordTokenizer);
             stringToWordVector.setInputFormat(instances);
-            stringToWordVector.setWordsToKeep(10);
+            stringToWordVector.setWordsToKeep(51000);
             instances = Filter.useFilter(instances,stringToWordVector);
             System.out.println("Fine TF-IDF con StringToWordVector");
             preStat = preStat + "\nFine TF-IDF con StringToWordVector";
@@ -75,9 +87,17 @@ public class TrainingServlet extends Controller {
             //setto il num di colonna della var target
             instances.setClassIndex(0);
 
+            heapSize = Runtime.getRuntime().totalMemory() / (1024 * 1024);
+            heapMaxSize = Runtime.getRuntime().maxMemory() / (1024 * 1024);
+            heapFreeSize = Runtime.getRuntime().freeMemory() / (1024 * 1024);
+            System.out.println("Utilizzo heap attuale preSelection: "+heapSize+" MB"+
+                    "\nMax Heap preSelection: "+heapMaxSize+" MB"+
+                    "\nFree heap space preSelection: "+heapFreeSize+" MB");
+
             //stampo il numero di parole trovate
             System.out.println("Numero di parole identificate: "+instances.numAttributes());
             preStat = preStat + "\nNumero di parole identificate: "+instances.numAttributes();
+            long selectionStartTime = System.nanoTime();
             //ATTRIBUTE SELECTION
             System.out.println("Inizio selection");
             preStat = preStat + "\nInizio selection";
@@ -87,15 +107,26 @@ public class TrainingServlet extends Controller {
             attributeSelection.setSearch(bestFirst);
             attributeSelection.setEvaluator(eval);
             attributeSelection.SelectAttributes(instances);
-
+            long selectionEndTime = System.nanoTime();
+            long selectionTotalTime = selectionEndTime - selectionStartTime;
+            System.out.println("Fine selection");
+            preStat = preStat + "\nFine selection";
+            System.out.println("Attribute selection running time: "+selectionTotalTime/1000000+" ms");
+            preStat = preStat + "\nAttribute selection running time: "+selectionTotalTime/1000000+" ms";
             int[] indices = attributeSelection.selectedAttributes();
             System.out.println("Indici da conservare: "+Utils.arrayToString(indices));
             System.out.println("Numero indici(parole da utilizzare): "+indices.length);
             preStat = preStat + "\nIndici da conservare: "+Utils.arrayToString(indices)+
                                 "\nNumero indici(parole da utilizzare): "+indices.length;
             writeIndices(indices); //salvo gli indici in un file
-            System.out.println("Fine selection");
-            preStat = preStat + "\nFine selection";
+
+            heapSize = Runtime.getRuntime().totalMemory() / (1024 * 1024);
+            heapMaxSize = Runtime.getRuntime().maxMemory() / (1024 * 1024);
+            heapFreeSize = Runtime.getRuntime().freeMemory() / (1024 * 1024);
+            System.out.println("Utilizzo heap attuale postSelection: "+heapSize+" MB"+
+                    "\nMax Heap postSelection: "+heapMaxSize+" MB"+
+                    "\nFree heap space postSelection: "+heapFreeSize+" MB");
+
 
             //ATTRIBUTE REMOVE
             Remove removeFilter = new Remove();
@@ -114,8 +145,7 @@ public class TrainingServlet extends Controller {
                     "\nIndice Classe: "+instances.classIndex() +
                     "\nStats Class attribute: "+instances.attributeStats(instances.classIndex());
 
-            writeStats(preStat,"preStatFile-"+new Date().getTime());
-
+            long trainStartTime = System.nanoTime();
                     //ADDESTRAMENTO NAIVE BAYES
             NaiveBayes naiveBayes = new NaiveBayes();
             Evaluation evaluation = new Evaluation(newData);
@@ -141,6 +171,11 @@ public class TrainingServlet extends Controller {
             System.out.println("Decision Tree Summary: "+ evaluationTree.toSummaryString());
             System.out.println("Decision Tree: "+ evaluationTree.toClassDetailsString());
             System.out.println("Decision Tree: "+ evaluationTree.toMatrixString());
+            long trainEndTime = System.nanoTime();
+            long trainTotalTime = trainEndTime - trainStartTime;
+            System.out.println("Train time: "+trainTotalTime/1000000+" ms");
+            preStat = preStat + "\nTrain time: "+trainTotalTime/1000000+" ms";
+
             writePredictions(evaluationTree.predictions(),"predictionsJ48.txt");
 
             //SALVATAGGIO MODELLI
@@ -148,6 +183,12 @@ public class TrainingServlet extends Controller {
             SerializationHelper.write("C:\\Program Files\\Apache Software Foundation\\Tomcat 9.0\\model\\j48.model", decisionTree);
             getServletContext().setAttribute("naiveModel",SerializationHelper.read("C:\\Program Files\\Apache Software Foundation\\Tomcat 9.0\\model\\naiveBayes.model"));
             getServletContext().setAttribute("dTreeModel",SerializationHelper.read("C:\\Program Files\\Apache Software Foundation\\Tomcat 9.0\\model\\j48.model"));
+            endTime = System.nanoTime();
+            totalTime = endTime - startTime;
+            System.out.println("Total time: "+totalTime/1000000+" ms");
+            preStat = preStat + "\nTotal time: "+totalTime/1000000+" ms";
+
+            writeStats(preStat,"preStatFile-"+new Date().getTime());
 
             Alert alert = new Alert("Modello addestrato con successo");
             request.setAttribute("alert",alert);
