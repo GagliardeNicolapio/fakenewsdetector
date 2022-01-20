@@ -5,6 +5,7 @@ import Model.Components.Alert;
 import weka.classifiers.bayes.NaiveBayes;
 import weka.classifiers.bayes.NaiveBayesMultinomial;
 import weka.classifiers.trees.J48;
+import weka.core.Attribute;
 import weka.core.DenseInstance;
 import weka.core.Instance;
 import weka.core.Instances;
@@ -19,6 +20,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 @WebServlet(name = "FeedbackServlet", value = "/feedback")
 public class FeedbackServlet extends Controller {
@@ -51,23 +54,23 @@ public class FeedbackServlet extends Controller {
                     * e visto che l'errore è uguale anche se usiamo un istanza del dataset, utilizzeremo questa
                     * parte credo, almeno non bisogna fare stringToVector su tutto il dataset ogni volta
                     * ma solo su una istanza*/
-                    //ArrayList<Attribute> attributeList = new ArrayList<>();
+                    /*ArrayList<Attribute> attributeList = new ArrayList<>();
 
-                    /*Attribute title = new Attribute("title", (List<String>) null);
-                    Attribute text = new Attribute("text", (List<String>) null);*/
+                    Attribute title = new Attribute("title", (List<String>) null);
+                    Attribute text = new Attribute("text", (List<String>) null);
 
-                    /*ArrayList<String> classVal = new ArrayList<>();
+                    ArrayList<String> classVal = new ArrayList<>();
                     classVal.add("fake");
-                    classVal.add("true");*/
+                    classVal.add("true");
 
-                    /*attributeList.add(title);
+                    attributeList.add(title);
                     attributeList.add(text);
                     attributeList.add(new Attribute("varTarget",classVal));*/
 
                     //Instances data = new Instances("stream",attributeList,0); //dataset che conterrà soltanto la nuova istanza da predire
                     Instances originalDataset = (Instances)getServletContext().getAttribute("dataset");
                     Instance inst_co = new DenseInstance(originalDataset.numAttributes());
-                    inst_co.setDataset(originalDataset); //da sostituire con data, ossia il dataset con una sola istanza
+                    inst_co.setDataset(originalDataset); //data, ossia il dataset con una sola istanza
 
                     System.out.println("Titolo ricevuto: "+titolo);
                     System.out.println("Testo ricevuto: "+testo);
@@ -92,34 +95,39 @@ public class FeedbackServlet extends Controller {
                     wordTokenizer.setDelimiters(".,;:'\"()?!/ -_><&#");
                     stringToWordVector.setTokenizer(wordTokenizer);
                     stringToWordVector.setInputFormat(originalDataset);
-                    stringToWordVector.setWordsToKeep(10);
+                    stringToWordVector.setWordsToKeep(51000);
                     // applico string to word vector al dataset originale, che contiene la nuova istanza in coda
                     originalDataset = Filter.useFilter(originalDataset,stringToWordVector);
 
+                    System.out.println("Primo attributo postStringToVector: "+originalDataset.attribute(0).toString());
                     originalDataset.setClassIndex(0);
-                    //data.setRelationName("stream"); potrebbe servire quando si utilizza il dataset simulato con un istanza
+                    //data.setRelationName("stream"); //potrebbe servire quando si utilizza il dataset simulato con un istanza
 
                     //System.out.println("Stampa delle istanze data: "+data.toString()); è possibile solo con il dataset con un istanza, altrimenti stampa troppe cose
                     System.out.println("Class index data: "+originalDataset.classIndex());
                     System.out.println("Numero istanze data: "+originalDataset.numInstances());
                     System.out.println("Numero classi, dovrebbero essere 2 (data): "+originalDataset.numClasses());
 
-                    //lastInstance per stampare la nuova istanza dell'utente con TF-IDF applicato
+                    //firstInstance per stampare la nuova e unica istanza dell'utente con TF-IDF applicato
                     System.out.println("Prima istanza: "+originalDataset.lastInstance().toString());
 
                     //con distributionForInstance abbiamo le probabilità e possiamo usare il grafico in percentuale
                     //lastInstance per fare la predizione sulla nuova istanza
-                    double[] naiveIndex = naive.distributionForInstance(originalDataset.lastInstance()); //istanza nuova, quindi predizione sul testo inserito sul sito
+                    //double naiveClassify = naive.classifyInstance(data.firstInstance());
+                    double naiveIndex = naive.classifyInstance(originalDataset.lastInstance()); //istanza nuova, quindi predizione sul testo inserito sul sito
                     //double dTreeIndex = dTree.classifyInstance(originalDataset.firstInstance()); //errore index out of bound
                     //String naiveLabel = naiveIndex < 1 ? "false":"true";
                     //String dTreeLabel = dTreeIndex < 1 ? "false":"true";
 
-                    for(int i=0; i<naiveIndex.length; i++){
+                    /*for(int i=0; i<naiveIndex.length; i++){
                         System.out.println("Naive ha predetto: "+naiveIndex[i]);
-                    }
+                    }*/
                     /*for(int i=0; i<dTreeIndex.length; i++){
                         System.out.println("J48 ha predetto: "+dTreeIndex[i]);
                     }*/
+
+                    System.out.println("Naive ha predetto: "+naiveIndex);
+                    //request.setAttribute("percentuale",(int)(naiveIndex[1]*100));
 
 
                     /*request.setAttribute("naiveLabel",naiveLabel);

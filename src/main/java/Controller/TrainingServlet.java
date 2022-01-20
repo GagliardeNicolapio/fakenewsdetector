@@ -126,22 +126,22 @@ public class TrainingServlet extends Controller {
                     "\nMax Heap postSelection: "+heapMaxSize+" MB"+
                     "\nFree heap space postSelection: "+heapFreeSize+" MB");*/
 
-            int[] indices = {1,1120,2312,2600,4385,5113,5118,5445,6215,7052,7538,8060,8874,9070,9310,11712,11716,12668,
+            /*int[] indices = {1,1120,2312,2600,4385,5113,5118,5445,6215,7052,7538,8060,8874,9070,9310,11712,11716,12668,
                     14756,14951,16386,16457,16679,17163,17957,19363,19960,21768,22077,23468,24705,25229,27010,27750,28287,
                     28335,28443,28635,28840,29266,30176,30210,30426,30467,30540,30582,32001,34260,35644,36137,37578,37915,
                     38086,38474,38847,38849,38850,39525,39532,39872,39921,40553,40588,40673,41800,42709,43403,43531,44306,
                     44617,45246,45412,45417,45419,45526,46438,46775,46792,47027,47033,47205,47256,47268,47668,47682,47902,
                     47938,48212,48583,48934,49430,49565,49688,49737,50212,50536,50894,51158,51436,52003,52111,52630,53223,
                     53305,53322,53645,53647,54383,54464,54713,54744,54829,54866,54984,55360,56166,56641,56678,56865,57054,
-                    57175,57194,57392,58021,58203,58432,58437,58756,58816,58824,58855,58930,0};
+                    57175,57194,57392,58021,58203,58432,58437,58756,58816,58824,58855,58930,0};*/
             //ATTRIBUTE REMOVE
-            Remove removeFilter = new Remove();
+            /*Remove removeFilter = new Remove();
             removeFilter.setAttributeIndicesArray(indices);
             removeFilter.setInvertSelection(true);
             removeFilter.setInputFormat(instances);
             Instances newData = Filter.useFilter(instances, removeFilter);
 
-            System.out.println("Numero di attributi(parole) rimossi: "+(instances.numAttributes()-newData.numAttributes()));
+            System.out.println("Numero di attributi(parole) rimossi: "+(instances.numAttributes()-newData.numAttributes()));*/
 
             System.out.println("Numero Classi: "+instances.numClasses());
             System.out.println("Indice Classe: "+instances.classIndex());
@@ -164,7 +164,7 @@ public class TrainingServlet extends Controller {
             System.out.println("Naive Bayes: "+evaluation.toClassDetailsString());
             System.out.println("Naive Bayes: "+evaluation.toMatrixString());
             writePredictions(evaluation.predictions(),"predictionsNaiveBayes"); //la stampa delle predizioni funziona*/
-            naiveBayes.buildClassifier(newData);
+            naiveBayes.buildClassifier(instances);
             System.out.println("Fine build Classifier");
 
             //Ho commentato il J48 perchè impiegava troppo tempo, volevo solo testare NaiveMultinominal, alla fine J48 è uguale
