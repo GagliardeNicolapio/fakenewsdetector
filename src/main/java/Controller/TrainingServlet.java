@@ -11,7 +11,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.*;
 import weka.classifiers.Evaluation;
-import weka.classifiers.bayes.NaiveBayesMultinomial;
+import weka.classifiers.bayes.NaiveBayes;
 import weka.classifiers.evaluation.Prediction;
 import weka.classifiers.trees.J48;
 import weka.core.*;
@@ -153,9 +153,9 @@ public class TrainingServlet extends Controller {
 
             long trainStartTime = System.nanoTime();
             //ADDESTRAMENTO NAIVE BAYES
-            NaiveBayesMultinomial naiveBayes = new NaiveBayesMultinomial();
-            Evaluation evaluation = new Evaluation(newData);
-            evaluation.crossValidateModel(naiveBayes, newData, K_FOLDS, new Random(new Date().getTime()));
+            NaiveBayes naiveBayes = new NaiveBayes();
+            /*Evaluation evaluation = new Evaluation(instances);
+            evaluation.crossValidateModel(naiveBayes, instances, K_FOLDS, new Random(new Date().getTime()));
             String naiveStats = "Naive Bayes Summary: "+evaluation.toSummaryString() +
                             "\nNaive Bayes: "+evaluation.toClassDetailsString() +
                             "\nNaive Bayes: "+evaluation.toMatrixString();
@@ -163,13 +163,15 @@ public class TrainingServlet extends Controller {
             System.out.println("Naive Bayes Summary: "+evaluation.toSummaryString());
             System.out.println("Naive Bayes: "+evaluation.toClassDetailsString());
             System.out.println("Naive Bayes: "+evaluation.toMatrixString());
-            writePredictions(evaluation.predictions(),"predictionsNaiveBayes"); //la stampa delle predizioni funziona
+            writePredictions(evaluation.predictions(),"predictionsNaiveBayes"); //la stampa delle predizioni funziona*/
+            naiveBayes.buildClassifier(newData);
+            System.out.println("Fine build Classifier");
 
             //Ho commentato il J48 perchè impiegava troppo tempo, volevo solo testare NaiveMultinominal, alla fine J48 è uguale
             //ADDESTRAMENTO J48
-            /*J48 decisionTree = new J48();
-            Evaluation evaluationTree = new Evaluation(newData);
-            evaluationTree.crossValidateModel(decisionTree, newData, K_FOLDS, new Random(new Date().getTime()));
+            //J48 decisionTree = new J48();
+            //Evaluation evaluationTree = new Evaluation(newData);
+            /*evaluationTree.crossValidateModel(decisionTree, newData, K_FOLDS, new Random(new Date().getTime()));
             String j48Stats = "Decision Tree Summary: "+evaluationTree.toSummaryString() +
                     "\nDecision Tree: "+evaluationTree.toClassDetailsString() +
                     "\nDecision Tree: "+evaluationTree.toMatrixString();
@@ -177,6 +179,7 @@ public class TrainingServlet extends Controller {
             System.out.println("Decision Tree Summary: "+ evaluationTree.toSummaryString());
             System.out.println("Decision Tree: "+ evaluationTree.toClassDetailsString());
             System.out.println("Decision Tree: "+ evaluationTree.toMatrixString());*/
+            //decisionTree.buildClassifier(newData);
             long trainEndTime = System.nanoTime();
             long trainTotalTime = trainEndTime - trainStartTime;
             System.out.println("Train time: "+trainTotalTime/1000000+" ms");

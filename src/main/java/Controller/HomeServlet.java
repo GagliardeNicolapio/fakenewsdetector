@@ -2,7 +2,7 @@ package Controller;
 
 import Controller.http.Controller;
 import Model.Components.Alert;
-import weka.classifiers.bayes.NaiveBayesMultinomial;
+import weka.classifiers.bayes.NaiveBayes;
 import weka.classifiers.trees.J48;
 import weka.core.Instance;
 import weka.core.Instances;
@@ -20,7 +20,7 @@ public class HomeServlet extends Controller {
     public void init() throws ServletException {
         super.init();
         try {
-            NaiveBayesMultinomial naive = (NaiveBayesMultinomial) SerializationHelper.read(
+            NaiveBayes naive = (NaiveBayes) SerializationHelper.read(
                     "C:\\Program Files\\Apache Software Foundation\\Tomcat 9.0\\model\\naiveBayes.model");
             getServletContext().setAttribute("naiveModel",naive);
         } catch (Exception e) {

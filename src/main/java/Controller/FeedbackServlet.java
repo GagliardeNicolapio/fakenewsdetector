@@ -2,10 +2,9 @@ package Controller;
 
 import Controller.http.Controller;
 import Model.Components.Alert;
-import weka.classifiers.Classifier;
+import weka.classifiers.bayes.NaiveBayes;
 import weka.classifiers.bayes.NaiveBayesMultinomial;
 import weka.classifiers.trees.J48;
-import weka.core.Attribute;
 import weka.core.DenseInstance;
 import weka.core.Instance;
 import weka.core.Instances;
@@ -14,7 +13,6 @@ import weka.core.stopwords.Rainbow;
 import weka.core.tokenizers.WordTokenizer;
 import weka.filters.Filter;
 import weka.filters.unsupervised.attribute.StringToWordVector;
-
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -43,7 +41,7 @@ public class FeedbackServlet extends Controller {
             }
             request.setAttribute("titoloNews", titolo);
 
-            NaiveBayesMultinomial naive = (NaiveBayesMultinomial) getServletContext().getAttribute("naiveModel");
+            NaiveBayes naive = (NaiveBayes) getServletContext().getAttribute("naiveModel");
             J48 dTree = (J48) getServletContext().getAttribute("dTreeModel");
 
             if(naive != null && dTree != null){
@@ -82,7 +80,7 @@ public class FeedbackServlet extends Controller {
                     originalDataset.add(inst_co);
 
                     //Sostituire con lastInstance per stampare la nuova istanza con titolo e testo dell'utente
-                    System.out.println("Prima istanza preStringtoVector: "+originalDataset.firstInstance().toString());
+                    System.out.println("Prima istanza preStringtoVector: "+originalDataset.lastInstance().toString());
 
                     StringToWordVector stringToWordVector = new StringToWordVector();
                     stringToWordVector.setIDFTransform(true);
@@ -106,22 +104,22 @@ public class FeedbackServlet extends Controller {
                     System.out.println("Numero istanze data: "+originalDataset.numInstances());
                     System.out.println("Numero classi, dovrebbero essere 2 (data): "+originalDataset.numClasses());
 
-                    //Sostituire con lastInstance per stampare la nuova istanza dell'utente con TF-IDF applicato
-                    System.out.println("Prima istanza: "+originalDataset.firstInstance().toString());
+                    //lastInstance per stampare la nuova istanza dell'utente con TF-IDF applicato
+                    System.out.println("Prima istanza: "+originalDataset.lastInstance().toString());
 
                     //con distributionForInstance abbiamo le probabilità e possiamo usare il grafico in percentuale
-                    //sostituire con lastInstance per fare la predizione sulla nuova istanza
-                    double[] naiveIndex = naive.distributionForInstance(originalDataset.firstInstance()); //questa è una istanza del dataset originale che comunque da errore
-                    double[] dTreeIndex = dTree.distributionForInstance(originalDataset.firstInstance());
-                    /*String naiveLabel = naiveIndex < 1 ? "false":"true";
-                    String dTreeLabel = dTreeIndex < 1 ? "false":"true";*/
+                    //lastInstance per fare la predizione sulla nuova istanza
+                    double[] naiveIndex = naive.distributionForInstance(originalDataset.lastInstance()); //istanza nuova, quindi predizione sul testo inserito sul sito
+                    //double dTreeIndex = dTree.classifyInstance(originalDataset.firstInstance()); //errore index out of bound
+                    //String naiveLabel = naiveIndex < 1 ? "false":"true";
+                    //String dTreeLabel = dTreeIndex < 1 ? "false":"true";
 
                     for(int i=0; i<naiveIndex.length; i++){
                         System.out.println("Naive ha predetto: "+naiveIndex[i]);
                     }
-                    for(int i=0; i<dTreeIndex.length; i++){
+                    /*for(int i=0; i<dTreeIndex.length; i++){
                         System.out.println("J48 ha predetto: "+dTreeIndex[i]);
-                    }
+                    }*/
 
 
                     /*request.setAttribute("naiveLabel",naiveLabel);
