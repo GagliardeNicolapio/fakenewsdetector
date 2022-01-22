@@ -46,7 +46,7 @@ public class FeedbackServlet extends Controller {
             request.setAttribute("titoloNews", titolo);
 
             FilteredClassifier naive = (FilteredClassifier) getServletContext().getAttribute("naiveModel");
-            //FilteredClassifier dTree = (FilteredClassifier) getServletContext().getAttribute("dTreeModel");
+            FilteredClassifier dTree = (FilteredClassifier) getServletContext().getAttribute("j48");
 
             if(naive != null){
                 try {
@@ -71,12 +71,12 @@ public class FeedbackServlet extends Controller {
                     inst_co.setValue(text,testo);
                     data.add(inst_co);
 
-                    double naiveIndex = naive.classifyInstance(data.instance(0)); //istanza nuova, quindi predizione sul testo inserito sul sito
-                    //double dTreeIndex = dTree.classifyInstance(data.instance(0)); //da provare
+                    //double naiveIndex = naive.classifyInstance(data.instance(0)); //istanza nuova, quindi predizione sul testo inserito sul sito
+                    double dTreeIndex = dTree.classifyInstance(data.instance(0)); //da provare
 
-                    String prediction = (int)naiveIndex == 0 ? "fake" : "true";
+                    String prediction = (int)dTreeIndex == 0 ? "fake" : "true";
 
-                    System.out.println("Naive ha predetto: "+prediction);
+                    System.out.println("J48 ha predetto: "+prediction);
 
 
                     //request.setAttribute("percentuale",);
