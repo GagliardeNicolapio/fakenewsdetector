@@ -33,102 +33,45 @@ public class TrainingServlet extends Controller {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
         try {
-            final int K_FOLDS = 10;
+            final int K_FOLDS = 10, TIMES = 2, WORDS_TO_KEEP = 10000;
+            final double  PERCENTUALE = 0.7;
             long totalTime, startTime, endTime;
             startTime = System.nanoTime();
+
             //carico il dataset
             ConverterUtils.DataSource dataSource = new ConverterUtils.DataSource("C:\\Program Files\\Apache Software Foundation\\Tomcat 9.0\\dataset\\FakeAndTrueRandomWithCovidTest.arff");
             Instances instances = dataSource.getDataSet();
+
             FilteredClassifier naiveClassifier = new FilteredClassifier();
             FilteredClassifier j48Classifier = new FilteredClassifier();
 
 
-            //DATA CLEANING
-            System.out.println("Numero istanze: "+instances.numInstances());
-            System.out.println("Numero campi vuoti: "+instances.attributeStats(1).missingCount);
-            System.out.println("Rimozione missingValue...");
-            instances.removeIf(Instance::hasMissingValue);
-            System.out.println("Rimozione terminata.");
-            System.out.println("Numero campi vuoti dopo remove: "+instances.attributeStats(1).missingCount);
-            System.out.println("Numero istanze dopo remove: "+instances.numInstances());
 
-            //STRING TO WORD VECTOR
-            StringToWordVector stringToWordVector = new StringToWordVector();
-            stringToWordVector.setIDFTransform(true);
-            stringToWordVector.setTFTransform(true);
-            int[] attributeToProcess = {0,1};
-            stringToWordVector.setAttributeIndicesArray(attributeToProcess); //applichiamo il filtro ai primi due attributi, quindi titolo e testo
-            stringToWordVector.setStemmer(new SnowballStemmer());
-            stringToWordVector.setStopwordsHandler(new Rainbow());
-            WordTokenizer wordTokenizer = new WordTokenizer();
-            wordTokenizer.setDelimiters(".,;:'\"()?!/ -_><&#");
-            stringToWordVector.setTokenizer(wordTokenizer);
-            stringToWordVector.setInputFormat(instances);
-            stringToWordVector.setWordsToKeep(10000);
-            instances.setClassIndex(instances.numAttributes()-1); //perchè prima di applicare il filtro, nella gui e nel file compare come terzo attributo
-            j48Classifier.setFilter(stringToWordVector);
-            j48Classifier.setClassifier(new J48());
-           /* naiveClassifier.setFilter(stringToWordVector); //si aggiunge il filtro che dovrà usare il classificatore
-            naiveClassifier.setClassifier(new NaiveBayes()); //si setta il classificatore*/
+            //DATA CLEANING, da fare sempre
+            removeRows(instances);
 
-            // effettuare la cross validation in questo punto
-            //Validazione naive
-            /*Evaluation evaluation = new Evaluation(instances);
-            evaluation.crossValidateModel(naiveClassifier, instances, K_FOLDS, new Random(new Date().getTime()));
-            String naiveStats = "Naive Bayes Summary: "+evaluation.toSummaryString() +
-                    "\nNaive Bayes: "+evaluation.toClassDetailsString() +
-                    "\nNaive Bayes: "+evaluation.toMatrixString();
-            writeStats(naiveStats,"NaiveStats-"+new Date().getTime());
-            System.out.println("Naive Bayes Summary: "+evaluation.toSummaryString());
-            System.out.println("Naive Bayes: "+evaluation.toClassDetailsString());
-            System.out.println("Naive Bayes: "+evaluation.toMatrixString());
-            writePredictions(evaluation.predictions(),"predictionsNaiveBayes"); //la stampa delle predizioni funziona*/
+            //STRING TO WORD VECTOR, da fare sempre
+            stringToWordVector(instances,j48Classifier,naiveClassifier,WORDS_TO_KEEP);
 
-            //Validazione J48
-            int trainSize = (int) Math.round(instances.numInstances() * 0.7);
-            int testSize = instances.numInstances() - trainSize;
-            Instances train = new Instances(instances, 0, trainSize);
-            Instances test = new Instances(instances, trainSize, testSize);
-            System.out.println("Building j48Classifier for evaluation...");
-            j48Classifier.buildClassifier(train);
-            System.out.println("J48 evaluation build terminate");
-            Evaluation evaluationTree = new Evaluation(train);
-            evaluationTree.evaluateModel(j48Classifier,test);
+            //Validazione J48 SPLIT DATASET
+            evaluationJ48SplitDataSet(instances, j48Classifier, PERCENTUALE);
 
-            String j48Stats = "Decision Tree Summary: "+evaluationTree.toSummaryString() +
-                    "\nDecision Tree: "+evaluationTree.toClassDetailsString() +
-                    "\nDecision Tree: "+evaluationTree.toMatrixString();
-            writeStats(j48Stats,"j48Stats-"+new Date().getTime());
-            System.out.println("Decision Tree Summary: "+ evaluationTree.toSummaryString());
-            System.out.println("Decision Tree: "+ evaluationTree.toClassDetailsString());
-            System.out.println("Decision Tree: "+ evaluationTree.toMatrixString());
-            writePredictions(evaluationTree.predictions(),"predictionsJ48");
+            //Validazione naive bayes one times k fold cross validarion stratified
+            //nTimesKFoldCrossValidationStratified(instances,naiveClassifier,TIMES,K_FOLDS);
 
-            //TenTimesTenCrossValidation naive Bayes
-            nTimesKFoldCrossValidation(instances,naiveClassifier,1,K_FOLDS);
-            System.out.println("inizio salvataggio modelli");
+            //Validazione naive bayes cross validation normale
+            evaluationNaiveBayesCrossFold(instances,naiveClassifier,K_FOLDS);
 
-
-            /*System.out.println("Building naiveClassifier...");
-            naiveClassifier.buildClassifier(instances); //il modello conterrà il filtro che applicherà on the flyyyy
-            System.out.println("Naive build finish");*/
-            System.out.println("Final Building j48Classifier...");
-            j48Classifier.buildClassifier(instances); //rebuild with all dataset
-            System.out.println("Final J48 build terminate.");
-
-
+            //Validazione naive bayes split dataset
+            //da fare
 
             //SALVATAGGIO MODELLI
-            //SerializationHelper.write("C:\\Program Files\\Apache Software Foundation\\Tomcat 9.0\\model\\naiveBayes.model", naiveClassifier);
-            SerializationHelper.write("C:\\Program Files\\Apache Software Foundation\\Tomcat 9.0\\model\\j48.model", j48Classifier);
-            //getServletContext().setAttribute("naiveModel",SerializationHelper.read("C:\\Program Files\\Apache Software Foundation\\Tomcat 9.0\\model\\naiveBayes.model"));
-            getServletContext().setAttribute("j48",SerializationHelper.read("C:\\Program Files\\Apache Software Foundation\\Tomcat 9.0\\model\\j48.model"));
-            endTime = System.nanoTime();
+            saveModels(naiveClassifier,j48Classifier);
+
+             endTime = System.nanoTime();
             totalTime = endTime - startTime;
             System.out.println("Total time: "+totalTime/1000000+" ms");
-            //preStat = preStat + "\nTotal time: "+totalTime/1000000+" ms";
 
-            //writeStats(preStat,"preStatFile-"+new Date().getTime());
 
             System.out.println("Salvataggio completato");
             Alert alert = new Alert("Modello addestrato con successo");
@@ -139,7 +82,45 @@ public class TrainingServlet extends Controller {
         }
     }
 
-    private void nTimesKFoldCrossValidation(Instances instances, Classifier classifier, int times, int folds) throws Exception {
+    //METODO SALVATAGGIO MODELLI
+    public void saveModels(FilteredClassifier naiveClassifier, FilteredClassifier j48Classifier) throws Exception {
+        SerializationHelper.write("C:\\Program Files\\Apache Software Foundation\\Tomcat 9.0\\model\\naiveBayes.model", naiveClassifier);
+        SerializationHelper.write("C:\\Program Files\\Apache Software Foundation\\Tomcat 9.0\\model\\j48.model", j48Classifier);
+        getServletContext().setAttribute("naiveModel",SerializationHelper.read("C:\\Program Files\\Apache Software Foundation\\Tomcat 9.0\\model\\naiveBayes.model"));
+        getServletContext().setAttribute("j48",SerializationHelper.read("C:\\Program Files\\Apache Software Foundation\\Tomcat 9.0\\model\\j48.model"));
+    }
+
+    //METODI VALIDAZIONE
+    private void evaluationNaiveBayesCrossFold(Instances instances, FilteredClassifier naiveClassifier, int kFold) throws Exception {
+        Evaluation evaluation = new Evaluation(instances);
+        evaluation.crossValidateModel(naiveClassifier, instances, kFold, new Random(new Date().getTime()));
+
+        writeStats(evaluation,"NaiveStats-"+new Date().getTime(),"Naive Bayes");
+        printReport(evaluation,"Naive Bayes");
+        writePredictions(evaluation.predictions(),"predictionsNaiveBayes"); //la stampa delle predizioni funziona*/
+    }
+
+    private void evaluationJ48SplitDataSet(Instances instances, FilteredClassifier j48Classifier, double percentuale) throws Exception {
+        instances.randomize(new Random(new Date().getTime()));
+        int trainSize = (int) Math.round(instances.numInstances() * percentuale);
+        int testSize = instances.numInstances() - trainSize;
+
+        Instances train = new Instances(instances, 0, trainSize);
+        Instances test = new Instances(instances, trainSize, testSize);
+
+        System.out.println("Building j48Classifier for evaluation...");
+        j48Classifier.buildClassifier(train);
+        System.out.println("J48 evaluation build terminate");
+
+        Evaluation evaluationTree = new Evaluation(train);
+        evaluationTree.evaluateModel(j48Classifier,test);
+
+        writeStats(evaluationTree,"j48Stats-"+new Date().getTime(),"Decision Tree");
+        printReport(evaluationTree,"Decision Tree");
+        writePredictions(evaluationTree.predictions(),"predictionsJ48");
+    }
+
+    private void nTimesKFoldCrossValidationStratified(Instances instances, Classifier classifier, int times, int folds) throws Exception {
         for(int i=0; i<times; i++){
             Random random = new Random(new Date().getTime());
             Instances randInstances = new Instances(instances); //per non modificare l'oggetto passato
@@ -164,6 +145,39 @@ public class TrainingServlet extends Controller {
         }
     }
 
+    //METODI DATA PREPARATION
+    private void removeRows(Instances instances){
+        System.out.println("Numero istanze: "+instances.numInstances());
+        System.out.println("Numero campi vuoti: "+instances.attributeStats(1).missingCount);
+        System.out.println("Rimozione missingValue...");
+        instances.removeIf(Instance::hasMissingValue);
+        System.out.println("Rimozione terminata.");
+        System.out.println("Numero campi vuoti dopo remove: "+instances.attributeStats(1).missingCount);
+        System.out.println("Numero istanze dopo remove: "+instances.numInstances());
+    }
+
+    private void stringToWordVector(Instances instances, FilteredClassifier j48, FilteredClassifier naiveBayes, int wordsToKeep) throws Exception {
+        StringToWordVector stringToWordVector = new StringToWordVector();
+        stringToWordVector.setIDFTransform(true);
+        stringToWordVector.setTFTransform(true);
+        int[] attributeToProcess = {0,1};
+        stringToWordVector.setAttributeIndicesArray(attributeToProcess); //applichiamo il filtro ai primi due attributi, quindi titolo e testo
+        stringToWordVector.setStemmer(new SnowballStemmer());
+        stringToWordVector.setStopwordsHandler(new Rainbow());
+        WordTokenizer wordTokenizer = new WordTokenizer();
+        wordTokenizer.setDelimiters(".,;:'\"()?!/ -_><&#");
+        stringToWordVector.setTokenizer(wordTokenizer);
+        stringToWordVector.setInputFormat(instances);
+        stringToWordVector.setWordsToKeep(wordsToKeep);
+        instances.setClassIndex(instances.numAttributes()-1); //perchè prima di applicare il filtro, nella gui e nel file compare come terzo attributo
+
+        j48.setFilter(stringToWordVector);
+        j48.setClassifier(new J48());
+        naiveBayes.setFilter(stringToWordVector); //si aggiunge il filtro che dovrà usare il classificatore
+        naiveBayes.setClassifier(new NaiveBayes()); //si setta il classificatore*/
+    }
+
+    //METODI WRITE
     private void writeIndices(int[] indices) throws IOException {
         FileWriter fileWriter = new FileWriter("C:\\Program Files\\Apache Software Foundation\\Tomcat 9.0\\model\\indiciBestFirst.txt");
         for(int i:indices)
@@ -174,9 +188,12 @@ public class TrainingServlet extends Controller {
         fileWriter.close();
     }
 
-    private void writeStats(String stats, String filename) throws IOException {
+    private void writeStats(Evaluation evaluation, String filename, String algoName) throws Exception {
+        String naiveStats = algoName+" Summary: "+evaluation.toSummaryString() +
+                "\n"+algoName+": "+evaluation.toClassDetailsString() +
+                "\n"+algoName+": "+evaluation.toMatrixString();
         FileWriter fileWriter = new FileWriter("C:\\Program Files\\Apache Software Foundation\\Tomcat 9.0\\model\\"+filename+".txt");
-        fileWriter.write(stats);
+        fileWriter.write(naiveStats);
         fileWriter.flush();
         fileWriter.close();
     }
@@ -190,6 +207,12 @@ public class TrainingServlet extends Controller {
             i++;
         }
         fileWriter.close();
+    }
+
+    private void printReport(Evaluation evaluation, String algoName) throws Exception {
+        System.out.println(algoName+" Summary: "+evaluation.toSummaryString());
+        System.out.println(algoName+": "+evaluation.toClassDetailsString());
+        System.out.println(algoName+": "+evaluation.toMatrixString());
     }
 
     @Override
