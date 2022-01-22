@@ -3,6 +3,7 @@ package Controller;
 import Controller.http.Controller;
 import Model.Components.Alert;
 import weka.classifiers.bayes.NaiveBayes;
+import weka.classifiers.meta.FilteredClassifier;
 import weka.classifiers.trees.J48;
 import weka.core.Instance;
 import weka.core.Instances;
@@ -20,16 +21,16 @@ public class HomeServlet extends Controller {
     public void init() throws ServletException {
         super.init();
         try {
-            NaiveBayes naive = (NaiveBayes) SerializationHelper.read(
+            FilteredClassifier naive = (FilteredClassifier) SerializationHelper.read(
                     "C:\\Program Files\\Apache Software Foundation\\Tomcat 9.0\\model\\naiveBayes.model");
             getServletContext().setAttribute("naiveModel",naive);
         } catch (Exception e) {
             System.out.println("Modello NaiveBayes non presente");
         }
         try {
-            J48 dTree = (J48) SerializationHelper.read(
+            FilteredClassifier dTree = (FilteredClassifier) SerializationHelper.read(
                     "C:\\Program Files\\Apache Software Foundation\\Tomcat 9.0\\model\\j48.model");
-            getServletContext().setAttribute("dTreeModel",dTree);
+            getServletContext().setAttribute("j48",dTree);
         }catch (Exception e){
             System.out.println("Modello DecisionTree non presente");
         }
