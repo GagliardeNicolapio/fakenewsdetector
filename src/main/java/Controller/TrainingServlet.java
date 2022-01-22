@@ -10,6 +10,8 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.*;
+
+import weka.classifiers.Classifier;
 import weka.classifiers.Evaluation;
 import weka.classifiers.bayes.NaiveBayes;
 import weka.classifiers.evaluation.Prediction;
@@ -21,6 +23,7 @@ import weka.core.stemmers.SnowballStemmer;
 import weka.core.stopwords.Rainbow;
 import weka.core.tokenizers.WordTokenizer;
 import weka.filters.Filter;
+import weka.filters.supervised.instance.ClassBalancer;
 import weka.filters.unsupervised.attribute.Remove;
 import weka.filters.unsupervised.attribute.StringToWordVector;
 
@@ -101,6 +104,11 @@ public class TrainingServlet extends Controller {
             System.out.println("Decision Tree: "+ evaluationTree.toMatrixString());
             writePredictions(evaluationTree.predictions(),"predictionsJ48");
 
+            //TenTimesTenCrossValidation naive Bayes
+            nTimesKFoldCrossValidation(instances,naiveClassifier,1,K_FOLDS);
+            System.out.println("inizio salvataggio modelli");
+
+
             /*System.out.println("Building naiveClassifier...");
             naiveClassifier.buildClassifier(instances); //il modello conterrà il filtro che applicherà on the flyyyy
             System.out.println("Naive build finish");*/
@@ -131,8 +139,32 @@ public class TrainingServlet extends Controller {
         }
     }
 
+    private void nTimesKFoldCrossValidation(Instances instances, Classifier classifier, int times, int folds) throws Exception {
+        for(int i=0; i<times; i++){
+            Random random = new Random(new Date().getTime());
+            Instances randInstances = new Instances(instances); //per non modificare l'oggetto passato
+            randInstances.randomize(random);
+            randInstances.stratify(folds);
 
-    public void writeIndices(int[] indices) throws IOException {
+            Evaluation evaluation = new Evaluation(randInstances);
+            for(int j=0; j<folds; j++){
+                Instances training = randInstances.trainCV(folds,j,random);
+                Instances test = randInstances.testCV(folds,j);
+
+                ClassBalancer filter = new ClassBalancer();
+                filter.setInputFormat(randInstances);
+                training = Filter.useFilter(training,filter);
+
+                training.setClassIndex(training.numAttributes()-1);
+                test.setClassIndex(test.numAttributes()-1);
+
+                classifier.buildClassifier(training);
+                evaluation.evaluateModel(classifier,test);
+            }
+        }
+    }
+
+    private void writeIndices(int[] indices) throws IOException {
         FileWriter fileWriter = new FileWriter("C:\\Program Files\\Apache Software Foundation\\Tomcat 9.0\\model\\indiciBestFirst.txt");
         for(int i:indices)
             fileWriter.append(i+"\n");
@@ -142,14 +174,14 @@ public class TrainingServlet extends Controller {
         fileWriter.close();
     }
 
-    public void writeStats(String stats, String filename) throws IOException {
+    private void writeStats(String stats, String filename) throws IOException {
         FileWriter fileWriter = new FileWriter("C:\\Program Files\\Apache Software Foundation\\Tomcat 9.0\\model\\"+filename+".txt");
         fileWriter.write(stats);
         fileWriter.flush();
         fileWriter.close();
     }
 
-    public void writePredictions(ArrayList<Prediction> predictions, String fileName) throws IOException {
+    private void writePredictions(ArrayList<Prediction> predictions, String fileName) throws IOException {
         FileWriter fileWriter = new FileWriter("C:\\Program Files\\Apache Software Foundation\\Tomcat 9.0\\model\\"+fileName+".txt");
         int i=0;
         for(Prediction prediction : predictions){

@@ -34,14 +34,6 @@ public class HomeServlet extends Controller {
         }catch (Exception e){
             System.out.println("Modello DecisionTree non presente");
         }
-        try {
-            Instances dataset = ConverterUtils.DataSource.read("C:\\Program Files\\Apache Software Foundation\\Tomcat 9.0\\dataset\\FakeAndTrueRandomWithCovidTest.arff");
-            dataset.removeIf(Instance::hasMissingValue);
-
-            getServletContext().setAttribute("dataset",dataset);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
     @Override
