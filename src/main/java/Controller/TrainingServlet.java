@@ -33,7 +33,7 @@ public class TrainingServlet extends Controller {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
         try {
-            final int K_FOLDS = 10, TIMES = 2, WORDS_TO_KEEP = 10000;
+            final int K_FOLDS = 10, TIMES = 10, WORDS_TO_KEEP = 10000;
             final double  PERCENTUALE = 0.7;
             long totalTime, startTime, endTime;
             startTime = System.nanoTime();
@@ -44,8 +44,6 @@ public class TrainingServlet extends Controller {
 
             FilteredClassifier naiveClassifier = new FilteredClassifier();
             FilteredClassifier j48Classifier = new FilteredClassifier();
-
-
 
             //DATA CLEANING, da fare sempre
             removeRows(instances);
@@ -60,10 +58,10 @@ public class TrainingServlet extends Controller {
             //nTimesKFoldCrossValidationStratified(instances,naiveClassifier,TIMES,K_FOLDS);
 
             //Validazione naive bayes cross validation normale
-            evaluationNaiveBayesCrossFold(instances,naiveClassifier,K_FOLDS);
+            //evaluationNaiveBayesCrossFold(instances,naiveClassifier,K_FOLDS);
 
             //Validazione naive bayes split dataset
-            //da fare
+            evaluationNaiveBayesSplitDT(instances,naiveClassifier,PERCENTUALE);
 
             //SALVATAGGIO MODELLI
             saveModels(naiveClassifier,j48Classifier);
@@ -91,6 +89,26 @@ public class TrainingServlet extends Controller {
     }
 
     //METODI VALIDAZIONE
+    private void evaluationNaiveBayesSplitDT(Instances instances, FilteredClassifier naiveClassifier, double percentuale) throws Exception {
+        instances.randomize(new Random(new Date().getTime()));
+        int trainSize = (int) Math.round(instances.numInstances() * percentuale);
+        int testSize = instances.numInstances() - trainSize;
+        Instances train = new Instances(instances, 0, trainSize);
+        Instances test = new Instances(instances,trainSize, testSize);
+
+        System.out.println("Building naiveClassifier...");
+        naiveClassifier.buildClassifier(train); //il modello conterrà il filtro che applicherà on the flyyyy
+        System.out.println("Naive build finish");
+
+        Evaluation evaluation = new Evaluation(test);
+        evaluation.evaluateModel(naiveClassifier,test);
+
+        writeStats(evaluation,"Naive Bayes"+"Stats-"+new Date().getTime(),"Naive Bayes");
+        printReport(evaluation,"Naive Bayes");
+        writePredictions(evaluation.predictions(),"predictionsNaiveBayes"); //la stampa delle predizioni funziona*/
+
+    }
+
     private void evaluationNaiveBayesCrossFold(Instances instances, FilteredClassifier naiveClassifier, int kFold) throws Exception {
         Evaluation evaluation = new Evaluation(instances);
         evaluation.crossValidateModel(naiveClassifier, instances, kFold, new Random(new Date().getTime()));
@@ -142,6 +160,7 @@ public class TrainingServlet extends Controller {
                 classifier.buildClassifier(training);
                 evaluation.evaluateModel(classifier,test);
             }
+            printReport(evaluation,"Naive Bayes, Times: "+i);
         }
     }
 
