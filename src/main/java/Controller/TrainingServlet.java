@@ -33,7 +33,7 @@ public class TrainingServlet extends Controller {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
         try {
-            final int K_FOLDS = 2, TIMES = 2, WORDS_TO_KEEP = 2;
+            final int K_FOLDS = 10, TIMES = 10, WORDS_TO_KEEP = 10000;
             final double  PERCENTUALE = 0.7;
             long totalTime, startTime, endTime;
             startTime = System.nanoTime();
@@ -41,6 +41,8 @@ public class TrainingServlet extends Controller {
             //carico il dataset
             ConverterUtils.DataSource dataSource = new ConverterUtils.DataSource("C:\\Program Files\\Apache Software Foundation\\Tomcat 9.0\\dataset\\FakeAndTrueRandomWithCovidTest.arff");
             Instances instances = dataSource.getDataSet();
+            instances.randomize(new Random(new Date().getTime()));
+
 
             FilteredClassifier naiveClassifier = new FilteredClassifier();
             FilteredClassifier j48Classifier = new FilteredClassifier();
@@ -97,14 +99,17 @@ public class TrainingServlet extends Controller {
 
     //METODI VALIDAZIONE
     private void evaluationNaiveBayesSplitDT(Instances instances, FilteredClassifier naiveClassifier, double percentuale) throws Exception {
-        instances.randomize(new Random(new Date().getTime()));
         int trainSize = (int) Math.round(instances.numInstances() * percentuale);
         int testSize = instances.numInstances() - trainSize;
         Instances train = new Instances(instances, 0, trainSize);
         Instances test = new Instances(instances,trainSize, testSize);
 
+        ClassBalancer filter = new ClassBalancer();
+        filter.setInputFormat(instances);
+        train = Filter.useFilter(train,filter);
+
         System.out.println("Building naiveClassifier...");
-        naiveClassifier.buildClassifier(train); //il modello conterrà il filtro che applicherà on the flyyyy
+        naiveClassifier.buildClassifier(train); //il modello conterrà il filtro che applicherà on the fly
         System.out.println("Naive build finish");
 
         Evaluation evaluation = new Evaluation(test);
@@ -126,12 +131,15 @@ public class TrainingServlet extends Controller {
     }
 
     private void evaluationJ48SplitDataSet(Instances instances, FilteredClassifier j48Classifier, double percentuale) throws Exception {
-        instances.randomize(new Random(new Date().getTime()));
         int trainSize = (int) Math.round(instances.numInstances() * percentuale);
         int testSize = instances.numInstances() - trainSize;
 
         Instances train = new Instances(instances, 0, trainSize);
         Instances test = new Instances(instances, trainSize, testSize);
+
+        ClassBalancer filter = new ClassBalancer();
+        filter.setInputFormat(instances);
+        train = Filter.useFilter(train,filter);
 
         System.out.println("Building j48Classifier for evaluation...");
         j48Classifier.buildClassifier(train);
