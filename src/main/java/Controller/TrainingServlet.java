@@ -33,7 +33,7 @@ public class TrainingServlet extends Controller {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
         try {
-            final int K_FOLDS = 10, TIMES = 10, WORDS_TO_KEEP = 10000;
+            final int K_FOLDS = 2, TIMES = 2, WORDS_TO_KEEP = 2;
             final double  PERCENTUALE = 0.7;
             long totalTime, startTime, endTime;
             startTime = System.nanoTime();
@@ -55,15 +55,16 @@ public class TrainingServlet extends Controller {
             evaluationJ48SplitDataSet(instances, j48Classifier, PERCENTUALE);
 
             //Validazione naive bayes one times k fold cross validarion stratified
-            //nTimesKFoldCrossValidationStratified(instances,naiveClassifier,TIMES,K_FOLDS);
+            nTimesKFoldCrossValidationStratified(instances,naiveClassifier,TIMES,K_FOLDS);
 
             //Validazione naive bayes cross validation normale
             //evaluationNaiveBayesCrossFold(instances,naiveClassifier,K_FOLDS);
 
             //Validazione naive bayes split dataset
-            evaluationNaiveBayesSplitDT(instances,naiveClassifier,PERCENTUALE);
+            //evaluationNaiveBayesSplitDT(instances,naiveClassifier,PERCENTUALE);
 
             //SALVATAGGIO MODELLI
+            buildModels(instances,naiveClassifier,j48Classifier);
             saveModels(naiveClassifier,j48Classifier);
 
              endTime = System.nanoTime();
@@ -80,8 +81,14 @@ public class TrainingServlet extends Controller {
         }
     }
 
+
     //METODO SALVATAGGIO MODELLI
-    public void saveModels(FilteredClassifier naiveClassifier, FilteredClassifier j48Classifier) throws Exception {
+    private void buildModels(Instances instances,FilteredClassifier naiveBayes, FilteredClassifier j48) throws Exception {
+        naiveBayes.buildClassifier(instances);
+        j48.buildClassifier(instances);
+    }
+
+    private void saveModels(FilteredClassifier naiveClassifier, FilteredClassifier j48Classifier) throws Exception {
         SerializationHelper.write("C:\\Program Files\\Apache Software Foundation\\Tomcat 9.0\\model\\naiveBayes.model", naiveClassifier);
         SerializationHelper.write("C:\\Program Files\\Apache Software Foundation\\Tomcat 9.0\\model\\j48.model", j48Classifier);
         getServletContext().setAttribute("naiveModel",SerializationHelper.read("C:\\Program Files\\Apache Software Foundation\\Tomcat 9.0\\model\\naiveBayes.model"));
