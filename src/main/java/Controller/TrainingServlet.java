@@ -55,17 +55,17 @@ public class TrainingServlet extends Controller {
             stringToWordVector(instances,j48Classifier,naiveClassifier,WORDS_TO_KEEP);
 
             //Validazione J48 SPLIT DATASET
-            //evaluationJ48SplitDataSet(instances, j48Classifier, PERCENTUALE);
+            //evaluationJ48SplitDataSet(instances, j48Classifier, PERCENTUALE,WORDS_TO_KEEP);
 
             //Validazione naive bayes one times k fold cross validarion stratified
-            nTimesKFoldCrossValidationStratified(instances,naiveClassifier,TIMES,K_FOLDS, WORDS_TO_KEEP);
+            //nTimesKFoldCrossValidationStratified(instances,naiveClassifier,TIMES,K_FOLDS, WORDS_TO_KEEP);
 
             //Validazione naive bayes cross validation normale
             //System.out.println("Valutazione in corso...");
             //evaluationNaiveBayesCrossFold(instances,naiveClassifier,K_FOLDS, WORDS_TO_KEEP);
 
             //Validazione naive bayes split dataset
-            //evaluationNaiveBayesSplitDT(instances,naiveClassifier,PERCENTUALE);
+            evaluationNaiveBayesSplitDT(instances,naiveClassifier,PERCENTUALE,WORDS_TO_KEEP);
 
             //SALVATAGGIO MODELLI
             //buildModels(instances,naiveClassifier,j48Classifier);
@@ -73,9 +73,15 @@ public class TrainingServlet extends Controller {
 
             Instant end = Instant.now();
             Duration interval = Duration.between(start,end);
+            int seconds = (int) interval.getSeconds()%60;
+            int minutes = ((int)interval.getSeconds()/60)%60;
+            int hour = (int) interval.getSeconds()/60/60;
 
-            System.out.println("Total time: "+interval.getSeconds()+":seconds -> "+(int)interval.getSeconds()/60+":minutes");
-
+            System.out.println("Total time: "+hour+":hour "+minutes+":minutes "+seconds+":seconds");
+            FileWriter fileWriter = new FileWriter("C:\\Program Files\\Apache Software Foundation\\Tomcat 9.0\\model\\Tempo-NaiveBayesSplitValidation.txt");
+            fileWriter.write("Total time: "+hour+":hour "+minutes+":minutes "+seconds+":seconds");
+            fileWriter.flush();
+            fileWriter.close();
 
             System.out.println("Salvataggio completato");
             Alert alert = new Alert("Modello addestrato con successo");
