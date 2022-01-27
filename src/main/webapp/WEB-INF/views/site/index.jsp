@@ -39,7 +39,7 @@
             <div class="row mb-3">
                 <label for="textNews" class="col-sm-2 col-form-label">Testo della news</label>
                 <div class="col-sm-10">
-                    <textarea name="textNews" class="form-control" id="textNews" placeholder="Incolla qui il testo della news" required></textarea>
+                    <textarea name="textNews" class="form-control" id="textNews" rows="10" placeholder="Incolla qui il testo della news" required></textarea>
 
                 </div>
             </div>

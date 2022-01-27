@@ -71,14 +71,18 @@ public class FeedbackServlet extends Controller {
                     inst_co.setValue(text,testo);
                     data.add(inst_co);
 
-                    //double naiveIndex = naive.classifyInstance(data.instance(0)); //istanza nuova, quindi predizione sul testo inserito sul sito
+                    double naiveIndex = naive.classifyInstance(data.instance(0)); //istanza nuova, quindi predizione sul testo inserito sul sito
                     double dTreeIndex = dTree.classifyInstance(data.instance(0)); //da provare
 
+
+
                     String prediction = (int)dTreeIndex == 0 ? "fake" : "true";
+                    String predictionNaive = (int)naiveIndex == 0 ? "fake" : "true";
 
                     System.out.println("J48 ha predetto: "+prediction);
-
-
+                    System.out.println("Naive Bayes ha predetto: "+predictionNaive);
+                    request.setAttribute("naivePrediction",predictionNaive);
+                    request.setAttribute("treePrediction",prediction);
                     //request.setAttribute("percentuale",);
 
 

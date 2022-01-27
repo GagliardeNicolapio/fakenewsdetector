@@ -169,7 +169,6 @@ public class scegliTitoloServlet extends Controller {
             session.setAttribute("bodyHTML", body);
             request.setAttribute("textNews", body.html());
 
-            request.setAttribute("percentuale", random.nextInt(101));
             request.getRequestDispatcher(view("site/scegliTitolo")).forward(request,response);
         } catch (InterruptedException e) {
             e.printStackTrace();

@@ -46,7 +46,6 @@
                 </div>
             </div>
         </div>
-        <div style="text-align: center">Link analizzato: <a target="_blank" href="https://www.google.it">www.google.it</a> </div>
 
         <div class="row">
             <ul class="legend col-4 mx-auto" style="width: auto; border-radius: 5px; border: 2px solid #eeeeee;  padding-bottom: 2px;">
@@ -57,7 +56,20 @@
 
             </ul>
         </div>
-
+        <div class="row">
+                <c:if test="${naivePrediction == 'fake'}">
+                    <span style="text-align: center;">Naive Bayes ha predetto: <span style="color: red">fake</span></span>
+                </c:if>
+                <c:if test="${treePrediction == 'fake'}">
+                    <span style="text-align: center;">J48 ha predetto: <span style="color: red">fake</span></span>
+                </c:if>
+                <c:if test="${naivePrediction == 'true'}">
+                    <span style="text-align: center;">Naive Bayes ha predetto: <span style="color: green">true</span></span>
+                </c:if>
+                <c:if test="${treePrediction == 'true'}">
+                    <span style="text-align: center;">J48 ha predetto: <span style="color: green">true</span></span>
+                </c:if>
+        </div>
         <div class="card">
             <div class="card-body">
                 <h5 class="card-title">Info</h5>

@@ -18,15 +18,11 @@
                 Inizia addestramento
             </button>
         </form>
-        <form action="csv2arff" method="post" enctype="multipart/form-data">
-            <p>Converti un file CSV in ARFF</p>
-            <input type="file" accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" name="csvFile" alt="Input CSV" title="Scegli un file csv" placeholder="CSV File">
-            <button type="submit" name="submitCSV" title="Invia file">Invia</button>
-        </form>
         <p>
-            Il file CSV deve essere formattato nel formato corretto per la conversione eliminando i caratteri che creano conflitti
-            come il carattere \t, @, % e altri che potrebbero influire sulla corretta conversione.
-            Weka separa correttamente gli attributi solo se il carattere di separazione è la virgola.
+            Per addestrare i modelli deve essere presente il file FakeAndTrueRandomWithCovidTest.arff nella cartella C:\Program Files\Apache Software Foundation\Tomcat 9.0\dataset\
+            <br>Per la conversione CSV to arff si rimanda al sito <a href="https://ikuz.eu/csv2arff/" target="_blank">ikuz.eu</a>
+            <br>Weka separa correttamente gli attributi solo se il carattere di separazione è la virgola.
+
         </p>
     </div>
 
