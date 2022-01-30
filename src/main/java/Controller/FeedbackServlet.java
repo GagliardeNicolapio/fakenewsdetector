@@ -2,19 +2,10 @@ package Controller;
 
 import Controller.http.Controller;
 import Model.Components.Alert;
-import weka.classifiers.bayes.NaiveBayes;
-import weka.classifiers.bayes.NaiveBayesMultinomial;
 import weka.classifiers.meta.FilteredClassifier;
-import weka.classifiers.trees.J48;
 import weka.core.Attribute;
 import weka.core.DenseInstance;
-import weka.core.Instance;
 import weka.core.Instances;
-import weka.core.stemmers.SnowballStemmer;
-import weka.core.stopwords.Rainbow;
-import weka.core.tokenizers.WordTokenizer;
-import weka.filters.Filter;
-import weka.filters.unsupervised.attribute.StringToWordVector;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -100,7 +91,8 @@ public class FeedbackServlet extends Controller {
                 }else{
                     errorMsg = "Classificatori non presenti";
                 }
-                Alert alert = new Alert(errorMsg);
+                Alert alert = new Alert();
+                alert.addMessage(errorMsg);
                 request.setAttribute("alert",alert);
                 request.getRequestDispatcher(view("site/index")).forward(request,response);
             }

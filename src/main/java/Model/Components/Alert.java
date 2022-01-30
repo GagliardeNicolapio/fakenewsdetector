@@ -1,13 +1,23 @@
 package Model.Components;
 
-public class Alert {
-    private final String message;
+import java.util.ArrayList;
 
-    public Alert(String message){
-        this.message = message;
+public class Alert {
+    private ArrayList<String> messages;
+
+    public Alert(){
+        this.messages = new ArrayList<>();
     }
 
-    public String getMessage() {
-        return message;
+    public void setMessages(ArrayList<String> list){
+        this.messages = list;
+    }
+
+    public void addMessage(String msg){
+        this.messages.add(msg);
+    }
+
+    public ArrayList<String> getMessages() {
+        return messages;
     }
 }

@@ -1,0 +1,14 @@
+.marginContainer{
+    margin: 2em 2em 1em 2em;
+}
+
+.borderDiv{
+    border: 1px solid grey;
+    border-radius: 10px;
+    box-shadow: 0 0 10px grey
+}
+
+.evalDiv{
+    width: 35%;
+    padding: 10px;
+}

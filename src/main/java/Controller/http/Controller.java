@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
+import java.util.ArrayList;
 
 public abstract class Controller extends HttpServlet {
 
@@ -24,6 +25,20 @@ public abstract class Controller extends HttpServlet {
 
     protected String getUploadPath(){
         return System.getenv("CATALINA_HOME") + File.separator + "dataset" + File.separator;
+    }
+
+    public ArrayList<String> listFilesForFolder(final File folder) {
+
+        ArrayList<String> list = new ArrayList<>();
+
+        for (final File fileEntry : folder.listFiles()) {
+            if (fileEntry.isDirectory()) {
+                listFilesForFolder(fileEntry);
+            } else {
+                list.add(fileEntry.getName());
+            }
+        }
+        return list;
     }
 
 }

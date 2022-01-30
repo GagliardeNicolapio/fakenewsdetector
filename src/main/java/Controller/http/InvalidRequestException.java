@@ -19,7 +19,9 @@ public class InvalidRequestException extends Exception{
 
     public void handle(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
         HttpSession session = request.getSession(true);
-        session.setAttribute("alert",new Alert(error));
+        Alert alert = new Alert();
+        alert.addMessage(error);
+        session.setAttribute("alert",alert);
         response.setStatus(errorCode);
         response.sendRedirect("http://localhost:8080/FakeNewsDetector");
     }

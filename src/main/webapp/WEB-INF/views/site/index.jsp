@@ -5,7 +5,7 @@
     <jsp:include page="../partials/head.jsp">
         <jsp:param name="title" value="Fake News Detector"/>
         <jsp:param name="styles" value="index.css,feedback.css"/>
-        <jsp:param name="script" value="preloader.js"/>
+        <jsp:param name="script" value="preloader.js,alert.js"/>
     </jsp:include>
 </head>
 <header>
@@ -67,10 +67,5 @@
             </div>
         </div>
     </div>
-<script>
-    document.getElementById("notification-close").addEventListener('click',function (){
-        document.getElementById("alertContainer").style.display = 'none'
-    });
-</script>
 </body>
 </html>
