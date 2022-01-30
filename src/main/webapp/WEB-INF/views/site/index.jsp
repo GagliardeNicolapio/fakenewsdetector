@@ -7,6 +7,12 @@
         <jsp:param name="styles" value="index.css,feedback.css"/>
         <jsp:param name="script" value="preloader.js,alert.js"/>
     </jsp:include>
+    <style>
+        ul{
+            list-style: none;
+            padding: 0;
+        }
+    </style>
 </head>
 <header>
     <%@include file="../partials/header.jsp"%>
@@ -47,8 +53,32 @@
             <button type="submit" class="btn btn-primary">Analizza</button>
         </form>
 
-        <div class="infoArea container-sm">
-                Info
+        <div class="infoArea container-sm" style="text-align: center;">
+            <h2>FakeNewsDetector</h2>
+            <div>FakeNewsDetector è un classificatore di fake news,
+                utilizzando il machine learining è in grado di analizzare il testo di una news e
+                indicare la veridicità della notizia. Verranno utilizzati due algoritmi: Naive Bayes e J48, quindi nella pagina
+            feedback verranno forniti due risultati.</div>
+            <hr>
+            <h2>J48</h2>
+            <ul>
+                <li>Accuracy: 68%</li>
+                <li>Precision: 79%</li>
+                <li>Recall: 68%</li>
+            </ul>
+            <hr>
+            <h2>Naive Bayes</h2>
+            <ul>
+                <li>Accuracy: 68%</li>
+                <li>Precision: 73%</li>
+                <li>Recall: 68%</li>
+            </ul>
+            <hr>
+            <h2>Autori</h2>
+            <ul>
+                <li>Carmine Leo - <a href="https://github.com/ilgrafico" target="_blank">ilgrafico</a></li>
+                <li>Gagliarde Nicolapio - <a href="https://github.com/GagliardeNicolapio" target="_blank">GagliardeNicolapio</a></li>
+            </ul>
 
         </div>
     </div>

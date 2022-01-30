@@ -1,3 +1,15 @@
+
+.cardFeedback{
+    width: 33%;
+    border: 3px rgba(0,0,0,.125) solid;
+    border-radius: 15px;
+    text-align: center;
+    padding: 23px 0px;
+    margin-right: 30px;
+    margin-bottom: 20px;
+    margin-top: 30px;
+}
+
 circle {
     transform-origin: center;
     transform-box: fill-box;

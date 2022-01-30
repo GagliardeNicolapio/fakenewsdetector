@@ -9,27 +9,6 @@
         <jsp:param name="script" value="feedback.js,preloader.js"/>
     </jsp:include>
 
-    <!--per moficare lo pseudo elemento-->
-    <style>
-<c:choose>
-    <c:when test="${percentuale<=49}">
-        .percent_more:after{
-            background: red !important;
-        }
-    </c:when>
-    <c:when test="${percentuale >= 90}">
-        .percent_more:after{
-            background: green !important;
-        }
-    </c:when>
-    <c:otherwise>
-        .percent_more:after{
-            background: #ffdd55 !important;
-        }
-    </c:otherwise>
-</c:choose>
-
-    </style>
 </head>
 
 <body>
@@ -39,44 +18,51 @@
         </jsp:include>
     </header>
     <div id="containerFeedback">
-        <div class="conainer" style="text-align: center">
-            <div class="circle_percent" data-percent="${percentuale}">
-                <div class="circle_inner">
-                    <div class="round_per"></div>
-                </div>
+        <div class="row justify-center">
+            <div class="cardFeedback">
+                <h4>Naive Bayes</h4>
+                <c:choose>
+                    <c:when test="${naivePrediction == 'fake'}">
+                        <img src="./images/icon/dislike.png" style="width: 20%;">
+                        <div>Naive bayes ha predetto:
+                            <span style="color: red">fake</span>
+                        </div>
+                    </c:when>
+                    <c:when test="${naivePrediction == 'true'}">
+                        <img src="./images/icon/like.png" style="width: 20%;">
+                        <div>Naive bayes ha predetto:
+                            <span style="color: green">true</span>
+                        </div>
+                    </c:when>
+                </c:choose>
+            </div>
+
+            <div class="cardFeedback" style="margin-right: 0px;">
+                <h4>J48</h4>
+                <c:choose>
+                    <c:when test="${treePrediction == 'fake'}">
+                        <img src="./images/icon/dislike.png" style="width: 20%;">
+                        <div>J48 ha predetto:
+                            <span style="color: red">fake</span>
+                        </div>
+                    </c:when>
+                    <c:when test="${treePrediction == 'true'}">
+                        <img src="./images/icon/like.png" style="width: 20%;">
+                        <div>J48 ha predetto:
+                            <span style="color: green">true</span>
+                        </div>
+                    </c:when>
+                </c:choose>
             </div>
         </div>
 
-        <div class="row">
-            <ul class="legend col-4 mx-auto" style="width: auto; border-radius: 5px; border: 2px solid #eeeeee;  padding-bottom: 2px;">
-                <li><img src="images/icon/triangle.svg">0-49</li>
-                <li><img src="images/icon/square.svg">50-89</li>
-                <li ><img src="images/icon/circle.svg">90-100</li>
-                <li style="margin: 0;"  tooltip="Info sulla veridicità della fonte"><img src="images/icon/info.png"></li>
-
-            </ul>
-        </div>
-        <div class="row">
-                <c:if test="${naivePrediction == 'fake'}">
-                    <span style="text-align: center;">Naive Bayes ha predetto: <span style="color: red">fake</span></span>
-                </c:if>
-                <c:if test="${treePrediction == 'fake'}">
-                    <span style="text-align: center;">J48 ha predetto: <span style="color: red">fake</span></span>
-                </c:if>
-                <c:if test="${naivePrediction == 'true'}">
-                    <span style="text-align: center;">Naive Bayes ha predetto: <span style="color: green">true</span></span>
-                </c:if>
-                <c:if test="${treePrediction == 'true'}">
-                    <span style="text-align: center;">J48 ha predetto: <span style="color: green">true</span></span>
-                </c:if>
-        </div>
         <div class="card">
             <div class="card-body">
-                <h5 class="card-title">Info</h5>
+                <h5 class="card-title">Testo analizzato</h5>
                 <p class="card-text">
-                   Titolo analizzato: ${titoloNews}
-                    <br>
-                    Testo analizzato: ${testoAnalizzato}
+                    <b>Titolo analizzato:</b> ${titoloNews}
+                    <br><br>
+                    <b>Testo analizzato:</b> ${testoAnalizzato}
                 </p>
             </div>
         </div>
