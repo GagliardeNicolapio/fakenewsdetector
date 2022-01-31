@@ -172,14 +172,13 @@ public class TrainingServlet extends Controller {
         filter.setInputFormat(instances);
         train = Filter.useFilter(train,filter);
 
-        System.out.println("Building naiveClassifier for Split evaluation...");
-        naiveClassifier.buildClassifier(train); //il modello conterrà il filtro che applicherà on the fly
-        System.out.println("Naive evaluation build finish");
+        naiveClassifier.buildClassifier(train);
 
         Evaluation evaluation = new Evaluation(test);
         evaluation.evaluateModel(naiveClassifier,test);
 
-        String stat = writeStats(evaluation,"NaiveStats-"+wordFilter+"Word-PercentageSplit"+new Date().getTime()/1000,"Naive Bayes");
+        String stat = writeStats(evaluation,"NaiveStats-"+wordFilter+"Word-PercentageSplit"+new Date().getTime()/1000,
+                "Naive Bayes "+(percentuale*100)+"% Percentage Split");
         printReport(evaluation,"Naive Bayes");
         writePredictions(evaluation.predictions(),"predictionsNaiveBayes");
         return stat;
@@ -189,7 +188,8 @@ public class TrainingServlet extends Controller {
         Evaluation evaluation = new Evaluation(instances);
         evaluation.crossValidateModel(naiveClassifier, instances, kFold, new Random(new Date().getTime()));
 
-        String stat = writeStats(evaluation,"NaiveStats-"+wordFilter+"Word-"+kFold+"FoldCrossValidation"+new Date().getTime()/1000,"Naive Bayes");
+        String stat = writeStats(evaluation,"NaiveStats-"+wordFilter+"Word-"+kFold+"FoldCrossValidation"+new Date().getTime()/1000,
+                "Naive Bayes "+kFold+"-Folds Cross Validation");
         printReport(evaluation,"Naive Bayes");
         writePredictions(evaluation.predictions(),"predictionsNaiveBayes");
         return stat;
@@ -206,14 +206,13 @@ public class TrainingServlet extends Controller {
         filter.setInputFormat(instances);
         train = Filter.useFilter(train,filter);
 
-        System.out.println("Building j48Classifier for Split evaluation...");
         j48Classifier.buildClassifier(train);
-        System.out.println("J48 evaluation build terminate");
 
         Evaluation evaluationTree = new Evaluation(train);
         evaluationTree.evaluateModel(j48Classifier,test);
 
-        String stat = writeStats(evaluationTree,"j48Stats-"+wordFilter+"Word-PercentageSplit"+new Date().getTime(),"Decision Tree");
+        String stat = writeStats(evaluationTree,"j48Stats-"+wordFilter+"Word-PercentageSplit"+new Date().getTime(),
+                "Decision Tree "+(percentuale*100)+"% Percentage Split");
         printReport(evaluationTree,"Decision Tree");
         writePredictions(evaluationTree.predictions(),"predictionsJ48");
         return stat;
@@ -243,7 +242,8 @@ public class TrainingServlet extends Controller {
                 classifier.buildClassifier(training);
                 evaluation.evaluateModel(classifier,test);
             }
-            String stat = writeNTimesStats(evaluation,"Naive"+times+"TimesStats","NaiveStats-"+(i+1)+"Times-"+wordFilter+"Word-"+folds+"FoldCrossValidationStratified"+new Date().getTime()/1000,"Naive Bayes");
+            String stat = writeNTimesStats(evaluation,"Naive"+times+"TimesStats","NaiveStats-"+(i+1)+"Times-"+wordFilter+"Word-"+folds+"FoldCrossValidationStratified"+new Date().getTime()/1000,
+                    "Naive Bayes "+times+"-Times "+folds+"-Folds Cross Validation");
             list.add(stat);
             printReport(evaluation,"Naive Bayes, Times: "+i+1);
             writePredictions(evaluation.predictions(),"predictionsNaiveBayes");
@@ -280,7 +280,7 @@ public class TrainingServlet extends Controller {
         j48.setFilter(stringToWordVector);
         j48.setClassifier(new J48());
         naiveBayes.setFilter(stringToWordVector); //si aggiunge il filtro che dovrà usare il classificatore
-        naiveBayes.setClassifier(new NaiveBayes()); //si setta il classificatore*/
+        naiveBayes.setClassifier(new NaiveBayes()); //si setta il classificatore
     }
 
     //METODI WRITE

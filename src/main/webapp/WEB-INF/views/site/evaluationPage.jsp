@@ -14,7 +14,7 @@
 </header>
 <body>
 
-    <div class="container-sm" style="height: 100vh; width: auto; padding: 10px; background-color: white">
+    <div class="container-sm" style="height: 100%; width: auto; padding: 10px; background-color: white">
         <div class="container-sm grid-x justify-center align-center">
             <c:if test="${not empty alert}">
                 <%@include file="../partials/alert.jsp"%>

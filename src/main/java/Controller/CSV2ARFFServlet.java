@@ -15,6 +15,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.Part;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 
 @WebServlet(name = "CSV2ARFFServlet", value = "/csv2arff")
 @MultipartConfig
@@ -34,14 +35,7 @@ public class CSV2ARFFServlet extends Controller {
         Instances data = loader.getDataSet();//get instance object
         data.setClassIndex(data.numAttributes()-1);
         data.setRelationName("stream");
-        
-        NominalToString filter = new NominalToString();
-        try {
-            filter.setInputFormat(data);
-            data = Filter.useFilter(data, filter);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+
 
         //save ARFF
         ArffSaver saver = new ArffSaver();
@@ -53,6 +47,11 @@ public class CSV2ARFFServlet extends Controller {
         Alert alert = new Alert();
         alert.addMessage("File CSV convertito");
         request.setAttribute("alert",alert);
+
+        File folder = new File("C:\\Program Files\\Apache Software Foundation\\Tomcat 9.0\\dataset");
+        ArrayList<String> fileList = listFilesForFolder(folder);
+        request.setAttribute("fileList",fileList);
+
         request.getRequestDispatcher(view("site/trainingPage")).forward(request,response);
     }
 }
