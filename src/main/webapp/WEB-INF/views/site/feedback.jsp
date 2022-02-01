@@ -58,7 +58,7 @@
 
         <div class="card">
             <div class="card-body">
-                <h5 class="card-title">Testo analizzato</h5>
+                <h5 class="card-title">News analizzata</h5>
                 <p class="card-text">
                     <b>Titolo analizzato:</b> ${titoloNews}
                     <br><br>

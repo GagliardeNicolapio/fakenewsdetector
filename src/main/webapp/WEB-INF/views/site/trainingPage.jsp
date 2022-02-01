@@ -31,7 +31,7 @@
                 <p>
                     Si ricorda che Weka separa correttamente gli attributi solo se il carattere di separazione è la virgola.
                     <br>Il file convertito dovrà essere modificato con un qualsiasi editor di testo modificando il tipo degli attributi,
-                    per le colonne che contengono il titolo e il testo il tipo dovrà essere string, per la classe inserire tra parentesi graffe le classi disponibili.
+                    per le colonne che contengono il titolo ed il testo, il tipo dovrà essere string.
                     <br>Il file sarà salvato nella directory di Tomcat nella cartella "dataset".
                 </p>
                 <form class="grid-y justify-start align-center" action="csv2arff" method="post" enctype="multipart/form-data">
