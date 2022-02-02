@@ -26,7 +26,10 @@ public class FeedbackServlet extends Controller {
         }
         else {
             String titolo;
-            String testo = request.getParameter("textNews");
+            String testoArray[] = request.getParameterValues("textNews");
+            String testo="";
+            for(String str : testoArray)
+                testo += str+" ";
             request.setAttribute("testoAnalizzato", testo);
 
             if(request.getParameter("flagCopyPaste") != null && request.getParameter("flagCopyPaste").equals("1")) {
