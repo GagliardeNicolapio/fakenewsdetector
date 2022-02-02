@@ -42,7 +42,8 @@
     <div class="card">
         <div class="card-body">
             <h5 class="card-title">Info</h5>
-            <p>Seleziona il titolo della news cliccando su uno dei successivi blocchi</p>
+            <p><b>Selezionare soltanto il titolo della news cliccando su uno dei successivi blocchi e infine inviare il titolo selezionato.
+                <br>In questo modo il sistema sarà in grado di identificare separatamente titolo e testo della notizia per una predizione più accurata.</b></p>
             <p style="display: inline;">Se non trovi il titolo o c'è qualche errore, incolla direttamente il titolo e il testo cliccando il tasto: </p>
 
             <!-- Button trigger modal -->

@@ -18,7 +18,7 @@
     <%@include file="../partials/header.jsp"%>
 </header>
 <body>
-    <div class="grid-y justify-center align-center container-sm mainContent" style="margin-top: 0; margin-bottom: 0">
+    <div class="grid-y justify-center align-center container-sm mainContent" id="homeContainer">
         <div class="container-sm grid-x justify-center align-center" style="height: 23vh; width: auto">
             <c:if test="${not empty alert}">
                 <%@include file="../partials/alert.jsp"%>

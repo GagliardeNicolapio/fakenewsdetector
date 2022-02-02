@@ -35,6 +35,19 @@
                         </li>
                     </ul>
                 </li>
+                <li>
+                    <h2>Autori</h2>
+                    <ul class="list-unstyled fs-5">
+                        <li>
+                            <h4>Nicolapio Gagliarde</h4>
+                            <a href="https://github.com/GagliardeNicolapio">https://github.com/GagliardeNicolapio</a>
+                        </li><br>
+                        <li>
+                            <h4>Carmine Leo</h4>
+                            <a href="https://github.com/ilgrafico">https://github.com/ilgrafico</a>
+                        </li>
+                    </ul>
+                </li>
             </ul>
     </div>
     <div id="contenitoreProg" style="display:none;">
