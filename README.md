@@ -13,3 +13,6 @@ della notizia.
   - Java - Linguaggio di programmazione back-end
   - Weka - Framework per l'implementazione di modelli di machine learning
   - Jsoup - Framework per l'analisi di pagine web 
+
+# Dataset
+ I dataset sono disponibili a questo [link](https://drive.google.com/drive/folders/1AhW3YYmInQGEek945jBpjh3Fsq5YHl47?usp=sharing)
