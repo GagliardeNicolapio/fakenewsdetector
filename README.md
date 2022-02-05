@@ -2,7 +2,7 @@
 
 # Introduzione
 FakeNewsDetector è un classificatore di fake news, utilizzando il machine 
-learining è in grado di analizzare il testo di una news e indicare la veridicità
+learning è in grado di analizzare il testo di una news e indicare la veridicità
 della notizia.
 
 L’analisi di un testo non è un processo banale a causa di caratteristiche linguistiche come il sarcasmo e le metafore. Lo scopo di questo progetto è quello di creare un sistema che utilizzando i dati di notizie passate, possa prevedere la possibilità che una notizia sia falsa o meno, a questo proposito il sistema sarà in grado di analizzare solo notizie in lingua inglese, essendo la lingua che presenta il maggior numero di dati a disposizione per poter addestrare il modello di Machine Learning.
